@@ -17,10 +17,10 @@ import me.odinmain.ui.clickgui.util.ColorUtil
 import me.odinmain.ui.util.MouseUtils.getQuadrant
 import me.odinmain.utils.equalsOneOf
 import me.odinmain.utils.name
+import me.odinmain.utils.noControlCodes
 import me.odinmain.utils.render.*
 import me.odinmain.utils.skyblock.dungeon.DungeonUtils
 import me.odinmain.utils.skyblock.dungeon.DungeonUtils.leapTeammates
-import me.odinmain.utils.skyblock.getItemIndexInContainerChest
 import me.odinmain.utils.skyblock.modMessage
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.inventory.GuiChest
@@ -149,7 +149,9 @@ object LeapMenu : Module(
     }
 
     private fun leapTo(name: String, containerChest: ContainerChest) {
-        val index = getItemIndexInContainerChest(containerChest, name, 11..16) ?: return modMessage("Cant find player $name. This shouldn't be possible!")
+        val index = containerChest.inventorySlots.subList(11, 16)
+            .indexOfFirst { it?.stack?.displayName?.noControlCodes == name }
+            .takeIf { it != -1 } ?: return modMessage("Cant find player $name. This shouldn't be possible!")
         modMessage("Teleporting to $name.")
         mc.playerController.windowClick(containerChest.windowId, 11 + index, 2, 3, mc.thePlayer)
     }
