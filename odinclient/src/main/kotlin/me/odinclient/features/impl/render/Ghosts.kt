@@ -21,29 +21,17 @@ object Ghosts : Module(
     private var showGhosts: Boolean by BooleanSetting(name = "Hide Ghosts")
     private var hideChargedLayer: Boolean by BooleanSetting(name = "Hide Charged Layer")
 
-    @SubscribeEvent
-    fun onRenderWorldLast(event: RenderWorldLastEvent)
-    {
-        val creepers = mc.theWorld.loadedEntityList.filterIsInstance<EntityCreeper>().filter { entityCreeper -> entityCreeper.getEntityAttribute(SharedMonsterAttributes.maxHealth).baseValue >= 1000000 }
+    init {
+        execute(500) {
+            mc.theWorld.loadedEntityList
+                .filterIsInstance<EntityCreeper>()
+                .filter { entityCreeper -> entityCreeper.getEntityAttribute(SharedMonsterAttributes.maxHealth).baseValue >= 1000000 }
+                .forEach { creeper ->
+                    creeper.isInvisible = showGhosts
+                    creeper.dataWatcher.updateObject(17, (if (hideChargedLayer) 0 else 1).toByte())
 
-        for (creeper in creepers)
-        {
-            creeper.isInvisible = showGhosts
-
-            val chargedGhostLayerWatcher: Byte = creeper.dataWatcher.getWatchableObjectByte(17)
-            if (hideChargedLayer)
-            {
-                if (chargedGhostLayerWatcher == 1.toByte()) creeper.dataWatcher.updateObject(17, 0.toByte())
-            }
-            else
-            {
-                if (chargedGhostLayerWatcher == 0.toByte()) creeper.dataWatcher.updateObject(17, 1.toByte())
-            }
-
-            if (showGhostNametag)
-            {
-                drawGhostNameTag(creeper)
-            }
+                    if (showGhostNametag) drawGhostNameTag(creeper)
+                }
         }
     }
 
@@ -51,18 +39,11 @@ object Ghosts : Module(
         val currentHealth = creeper.health
         val maxHealth = creeper.getEntityAttribute(SharedMonsterAttributes.maxHealth).baseValue
         val isRunic = maxHealth == 4000000.0
-        var bracketsColor = "&8"
-        var lvlColor = "&7"
-        var nameColor = "&c"
-        var currentHealthColor = if (currentHealth < maxHealth / 2) "&e" else "&a"
-        var maxHealthColor = "&a"
-        if (isRunic) {
-            bracketsColor = "&5"
-            lvlColor = "&d"
-            nameColor = "&5"
-            currentHealthColor = "&d"
-            maxHealthColor = "&5"
-        }
+        val bracketsColor = if (isRunic) "&5" else "&8"
+        val lvlColor = if (isRunic) "&d" else "&7"
+        val nameColor = if (isRunic) "&5" else "&c"
+        val currentHealthColor = if (isRunic) "&d" else if (currentHealth < maxHealth / 2) "&e" else "&a"
+        val maxHealthColor = if (isRunic) "&5" else "&a"
         val name = "${bracketsColor}[${lvlColor}Lv250${bracketsColor}] ${nameColor + if (isRunic) "Runic " else ""}Ghost ${currentHealthColor + transformToSuffixedNumber(currentHealth.toDouble()) + "&f"}/${maxHealthColor + transformToSuffixedNumber(maxHealth) + "&c" + "❤"}".replace("&", "§")
 
         Renderer.drawStringInWorld(name, creeper.renderVec.addVec(y = creeper.height + 0.5), Color.WHITE, depth = false)
@@ -78,5 +59,4 @@ object Ghosts : Module(
         }
         return result
     }
-
 }
