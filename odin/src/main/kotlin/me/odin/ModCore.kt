@@ -35,14 +35,14 @@ class ModCore {
         MinecraftForge.EVENT_BUS.register(this)
 
         FramebufferShader.setupCameraTransform =
-            { (OdinMain.mc.entityRenderer as? EntityRendererAccessor)?.invokeSetupCameraTransform(RenderUtils.partialTicks, 0) }
-        CustomHighlight.entityOutlineShader = (mc.renderGlobal as? RenderGlobalAccessor)?.entityOutlineShader
+            { (mc.entityRenderer as? EntityRendererAccessor)?.invokeSetupCameraTransform(RenderUtils.partialTicks, 0) }
+        /** CustomHighlight.entityOutlineShader = (mc.renderGlobal as? RenderGlobalAccessor)?.entityOutlineShader
         CustomHighlight.clearAndBindFrameBufferShader = {
             (mc.renderGlobal as? RenderGlobalAccessor)?.let {
                 it.entityOutlineFramebuffer.framebufferClear()
                 it.entityOutlineFramebuffer.bindFramebuffer(true)
             }
-        }
+        } */
 
 
 

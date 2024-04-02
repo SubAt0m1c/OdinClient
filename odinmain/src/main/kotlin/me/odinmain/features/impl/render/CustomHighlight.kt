@@ -82,7 +82,13 @@ object CustomHighlight : Module(
         if (mode == 0) OutlineShader.startDraw(RenderUtils.partialTicks)
         else GlowShader.startDraw(RenderUtils.partialTicks)
 
-        currentEntities.forEach {
+        val entities = if (!renderThrough) {
+            currentEntities.filter { mc.thePlayer.canEntityBeSeen(it) }
+        } else {
+            currentEntities
+        }
+
+        entities.forEach {
             mc.renderManager.renderEntityStatic(it, RenderUtils.partialTicks, true)
         }
 
