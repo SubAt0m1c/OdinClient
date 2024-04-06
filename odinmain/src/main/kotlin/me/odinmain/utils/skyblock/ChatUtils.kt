@@ -1,5 +1,6 @@
 package me.odinmain.utils.skyblock
 
+import codes.som.anthony.koffee.modifiers.strict
 import me.odinmain.OdinMain.mc
 import me.odinmain.features.impl.render.ClickGUIModule.devMessages
 import me.odinmain.features.impl.render.DevPlayers
@@ -136,6 +137,10 @@ fun channelMessage(message: Any, name: String, channel: String) {
         // Add more cases as needed for other channels
         else -> throw IllegalArgumentException("Unsupported channel: $channel")
     }
+}
+
+fun reportLowballer(name: String) {
+    sendCommand("cr $name")
 }
 
 /**

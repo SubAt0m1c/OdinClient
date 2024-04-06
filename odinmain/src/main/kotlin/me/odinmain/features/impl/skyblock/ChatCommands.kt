@@ -66,7 +66,6 @@ object ChatCommands : Module(
     private val partyRegex = Regex("Party > (\\[.+])? ?(.+): (.+)")
     private val guildRegex = Regex("Guild > (\\[.+])? ?(.+) ?(\\[.+])?: ?(.+)")
     private val fromRegex = Regex("From (\\[.+])? ?(.+): (.+)")
-
     @SubscribeEvent
     fun chatCommands(event: ChatPacketEvent) {
         val message = event.message
