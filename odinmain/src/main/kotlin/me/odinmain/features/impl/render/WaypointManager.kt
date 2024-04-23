@@ -2,12 +2,14 @@ package me.odinmain.features.impl.render
 
 import kotlinx.coroutines.DelicateCoroutinesApi
 import me.odinmain.config.WaypointConfig
+import me.odinmain.features.impl.subaddons.OtherSettings.tempwaypointsAnywhere
 import me.odinmain.ui.waypoint.WaypointGUI
 import me.odinmain.utils.clock.Clock
 import me.odinmain.utils.noControlCodes
 import me.odinmain.utils.render.Color
 import me.odinmain.utils.render.Renderer
 import me.odinmain.utils.runIn
+import me.odinmain.utils.skyblock.Island
 import me.odinmain.utils.skyblock.LocationUtils.currentArea
 import me.odinmain.utils.skyblock.modMessage
 import net.minecraft.util.Vec3
@@ -53,7 +55,7 @@ object WaypointManager {
     }
 
     fun addTempWaypoint(name: String = "§fWaypoint", x: Int, y: Int, z: Int) {
-        if (currentArea == null) return modMessage("You are not in Skyblock.")
+        if (currentArea == Island.Unknown && !tempwaypointsAnywhere) return modMessage("You are not in Skyblock.")
         if (!Waypoints.enabled) return
         if (listOf(x, y,z).any { abs(it) > 5000}) return modMessage("§cWaypoint out of bounds.")
         if (temporaryWaypoints.any { it.first.x == x && it.first.y == y && it.first.z == z }) return modMessage("§cWaypoint already exists at $x, $y, $z.")

@@ -97,7 +97,7 @@ object LocationUtils {
      */
     private fun getArea(): Island? {
         if (mc.isSingleplayer) return Island.SinglePlayer // debugging
-        if (!inSkyblock) return null
+        if (!inSkyblock) return Island.Unknown // so waypoints work??
         val netHandlerPlayClient: NetHandlerPlayClient = mc.thePlayer?.sendQueue ?: return null
         val list = netHandlerPlayClient.playerInfoMap ?: return null
 
