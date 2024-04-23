@@ -30,7 +30,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test --stacktrace
       - uses: actions/upload-artifact@v3
-        name: Upload OdinClient
+        name: Upload Odin
         with:
           name: "Odin Build"
           path: odin/build/libs/*.jar
