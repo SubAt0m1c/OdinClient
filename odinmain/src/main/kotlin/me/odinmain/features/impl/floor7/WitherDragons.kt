@@ -7,7 +7,6 @@ import me.odinmain.features.impl.floor7.DragonCheck.dragonJoinWorld
 import me.odinmain.features.impl.floor7.DragonCheck.dragonLeaveWorld
 import me.odinmain.features.impl.floor7.DragonCheck.dragonSprayed
 import me.odinmain.features.impl.floor7.DragonCheck.lastDragonDeath
-import me.odinmain.features.impl.floor7.DragonCheck.lastDragonDeaths
 import me.odinmain.features.impl.floor7.DragonCheck.onChatPacket
 import me.odinmain.features.impl.floor7.DragonHealth.renderHP
 import me.odinmain.features.impl.floor7.DragonTimer.renderTime
@@ -119,7 +118,6 @@ object WitherDragons : Module(
                 it.spawnTime()
             }
             DragonTimer.toRender = ArrayList()
-            lastDragonDeaths.clear()
             lastDragonDeath = ""
         }
 

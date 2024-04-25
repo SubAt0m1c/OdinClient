@@ -25,7 +25,6 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent
 
 object DragonCheck {
 
-    var lastDragonDeaths = mutableListOf<WitherDragonsEnum>()
     var lastDragonDeath = ""
 
     fun dragonJoinWorld(event: EntityJoinWorldEvent) {
@@ -66,7 +65,6 @@ object DragonCheck {
         }
 
         if (sendArrowHit) arrowDeath(dragon)
-        lastDragonDeaths.add(dragon)
         lastDragonDeath = dragon.name
     }
 
@@ -90,15 +88,6 @@ object DragonCheck {
 
     fun onChatPacket(message: String) {
         if (
-            message.equalsOneOf(
-                "[BOSS] Wither King: Futile.",
-                "[BOSS] Wither King: You just made a terrible mistake!",
-                "[BOSS] Wither King: I am not impressed.",
-                "[BOSS] Wither King: Your skills have faded humans."
-            )
-        ) lastDragonDeaths.removeFirstOrNull()
-
-        if (
             !message.equalsOneOf(
                 "[BOSS] Wither King: Oh, this one hurts!",
                 "[BOSS] Wither King: I have more of those.",
@@ -109,10 +98,6 @@ object DragonCheck {
 
         val dragon = WitherDragonsEnum.entries.find { lastDragonDeath == it.name } ?: return
         if (sendNotification) modMessage("§${dragon.colorCode}${dragon.name} dragon counts.")
-        if (lastDragonDeaths.isEmpty()) return modMessage("couldnt get dragon in list")
-        val dragon2 = lastDragonDeaths[0]
-        lastDragonDeaths.removeFirstOrNull()
-        if (sendNotification) modMessage("§${dragon2.colorCode}${dragon2.name} dragon counts. §c(new method)")
     }
 
     private fun Vec3.dragonCheck(vec3: Vec3): Boolean {
