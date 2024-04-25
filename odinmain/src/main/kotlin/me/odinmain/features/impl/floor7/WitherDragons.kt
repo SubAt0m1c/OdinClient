@@ -180,22 +180,22 @@ object WitherDragons : Module(
         if (::priorityDragon.isInitialized && dragon == priorityDragon) {
             if (sendArrowHit && System.currentTimeMillis() - dragon.spawnedTime < dragon.skipKillTime) {
                 modMessage("§fYou have hit §6$arrowsHit §farrows on §${priorityDragon.colorCode}${priorityDragon.name}")
-                resetArrows()
+                arrowsHit = 0
             }
         }
     }
 
     private fun resetArrows() {
-        this.arrowsHit = 0
+        arrowsHit = 0
     }
 
     fun arrowSpawn(dragon: WitherDragonsEnum) {
         if (::priorityDragon.isInitialized) {
-            resetArrows()
+            arrowsHit = 0
             Timer().schedule(dragon.skipKillTime) {
                 if (dragon.entity?.isEntityAlive == true && dragon == priorityDragon) {
                     modMessage("§fYou hit §6${arrowsHit} §fon §${dragon.colorCode}${dragon.name} §fin §c${String.format("%.2f", dragon.skipKillTime.toFloat()/1000)} §fSeconds.")
-                    resetArrows()
+                    arrowsHit = 0
                 }
             }
         }
