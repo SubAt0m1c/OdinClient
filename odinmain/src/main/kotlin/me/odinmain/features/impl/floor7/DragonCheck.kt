@@ -107,9 +107,11 @@ object DragonCheck {
         ) return
 
         val dragon = WitherDragonsEnum.entries.find { lastDragonDeath == it.name } ?: return
+        if (sendNotification) modMessage("§${dragon.colorCode}${dragon.name} dragon counts.")
+        if (lastDragonDeaths.isEmpty()) return modMessage("couldnt get dragon in list")
         val dragon2 = lastDragonDeaths[0]
         lastDragonDeaths.removeFirstOrNull()
-        if (sendNotification) modMessage("§${dragon.colorCode}${dragon.name} dragon counts. || §${dragon2.colorCode}${dragon2.name} dragon counts. §c(new method)")
+        if (sendNotification) modMessage("§${dragon2.colorCode}${dragon2.name} dragon counts. §c(new method)")
     }
 
     private fun Vec3.dragonCheck(vec3: Vec3): Boolean {
