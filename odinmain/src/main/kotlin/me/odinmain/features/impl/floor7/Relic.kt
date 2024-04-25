@@ -47,6 +47,7 @@ object Relic {
     }
 
     fun relicsBlockPlace(packet: C08PacketPlayerBlockPlacement) {
+        //ToDo: Fix Relic pbs not saving past game rs
         if (timer == 0L) return
         val block = mc.theWorld?.getBlockState(packet.position)?.block ?: return
         if (!block.equalsOneOf(Blocks.cauldron, Blocks.anvil) || !currentRelic.equalsOneOf("GREEN_KING_RELIC", "PURPLE_KING_RELIC", "BLUE_KING_RELIC", "ORANGE_KING_RELIC", "RED_KING_RELIC")) return

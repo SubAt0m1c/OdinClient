@@ -2,7 +2,8 @@ package me.odinmain.features.impl.floor7
 
 import me.odinmain.OdinMain.mc
 import me.odinmain.config.Config
-import me.odinmain.features.impl.floor7.WitherDragons.arrowsHit
+import me.odinmain.features.impl.floor7.WitherDragons.arrowDeath
+import me.odinmain.features.impl.floor7.WitherDragons.arrowSpawn
 import me.odinmain.features.impl.floor7.WitherDragons.sendArrowHit
 import me.odinmain.features.impl.floor7.WitherDragons.sendNotification
 import me.odinmain.features.impl.floor7.WitherDragons.sendSpawned
@@ -23,6 +24,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent
 
 object DragonCheck {
 
+    var lastDragonDeaths = mutableListOf<WitherDragonsEnum>()
     var lastDragonDeath = ""
 
     fun dragonJoinWorld(event: EntityJoinWorldEvent) {
@@ -36,15 +38,25 @@ object DragonCheck {
         dragon.spawnedTime = System.currentTimeMillis()
         dragon.isSprayed = false
 
+        if (sendArrowHit) arrowSpawn(dragon)
         if (resetOnDragons) onDragonSpawn()
-        if (sendSpawned) modMessage("§${dragon.colorCode}${dragon.name} §fdragon spawned. This is the §${dragon.colorCode}${dragon.timesSpawned}§f time it has spawned.")
+        if (sendSpawned) {
+            val numberSuffix = when (dragon.timesSpawned) {
+                1 -> "st"
+                2 -> "nd"
+                3 -> "rd"
+                else -> "th"
+            }
+            modMessage("§${dragon.colorCode}${dragon.name} §fdragon spawned. This is the §${dragon.colorCode}${dragon.timesSpawned}${numberSuffix}§f time it has spawned.")
+        }
     }
 
-    fun dragonLeaveWorld(event: LivingDeathEvent, priorityDragon: WitherDragonsEnum) {
+    fun dragonLeaveWorld(event: LivingDeathEvent) {
         if (event.entity !is EntityDragon) return
         val dragon = WitherDragonsEnum.entries.find {it.entity?.entityId == event.entity.entityId} ?: return
 
         if (sendTime) {
+            // ToDo: Fix pbs not saving at all
             val oldPB = dragon.dragonKillPBs.value
             val killTime = event.entity.ticksExisted / 20.0
             if (dragon.dragonKillPBs.value < event.entity.ticksExisted / 20.0) dragon.dragonKillPBs.value = killTime
@@ -52,12 +64,8 @@ object DragonCheck {
             modMessage("§${dragon.colorCode}${dragon.name} §fdragon was alive for ${printSecondsWithColor(killTime, 3.5, 7.5, down = false)}${if (killTime < oldPB) " §7(§dNew PB§7)" else ""}.")
         }
 
-        if (event.entity == priorityDragon.entity && sendArrowHit) {
-            if (arrowsHit > 0) {
-                modMessage("§fYou have hit §c$arrowsHit §fArrows on §${priorityDragon.colorCode}${priorityDragon.name}")
-                arrowsHit = 0
-            }
-        }
+        if (sendArrowHit) arrowDeath(dragon)
+        lastDragonDeaths.add(dragon)
         lastDragonDeath = dragon.name
     }
 
@@ -81,16 +89,27 @@ object DragonCheck {
 
     fun onChatPacket(message: String) {
         if (
+            message.equalsOneOf(
+                "[BOSS] Wither King: Futile.",
+                "[BOSS] Wither King: You just made a terrible mistake!",
+                "[BOSS] Wither King: I am not impressed.",
+                "[BOSS] Wither King: Your skills have faded humans."
+            )
+        ) lastDragonDeaths.removeFirstOrNull()
+
+        if (
             !message.equalsOneOf(
                 "[BOSS] Wither King: Oh, this one hurts!",
                 "[BOSS] Wither King: I have more of those.",
-                "[BOSS] Wither King: My soul is disposable."
+                "[BOSS] Wither King: My soul is disposable.",
+                "[BOSS] Wither King: Incredible. You did what I couldn't do myself."
             )
         ) return
 
         val dragon = WitherDragonsEnum.entries.find { lastDragonDeath == it.name } ?: return
-
-        if (sendNotification) modMessage("§${dragon.colorCode}${dragon.name} dragon counts.")
+        val dragon2 = lastDragonDeaths[0]
+        lastDragonDeaths.removeFirstOrNull()
+        if (sendNotification) modMessage("§${dragon.colorCode}${dragon.name} dragon counts. || §${dragon2.colorCode}${dragon2.name} dragon counts. §c(new method)")
     }
 
     private fun Vec3.dragonCheck(vec3: Vec3): Boolean {

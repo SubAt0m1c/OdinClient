@@ -7,6 +7,7 @@ import me.odinmain.features.impl.floor7.DragonCheck.dragonJoinWorld
 import me.odinmain.features.impl.floor7.DragonCheck.dragonLeaveWorld
 import me.odinmain.features.impl.floor7.DragonCheck.dragonSprayed
 import me.odinmain.features.impl.floor7.DragonCheck.lastDragonDeath
+import me.odinmain.features.impl.floor7.DragonCheck.lastDragonDeaths
 import me.odinmain.features.impl.floor7.DragonCheck.onChatPacket
 import me.odinmain.features.impl.floor7.DragonHealth.renderHP
 import me.odinmain.features.impl.floor7.DragonTimer.renderTime
@@ -25,6 +26,7 @@ import me.odinmain.utils.render.mcText
 import me.odinmain.utils.render.roundedRectangle
 import me.odinmain.utils.skyblock.Island
 import me.odinmain.utils.skyblock.dungeon.DungeonUtils
+import me.odinmain.utils.skyblock.modMessage
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S04PacketEntityEquipment
 import net.minecraft.network.play.server.S29PacketSoundEffect
@@ -34,6 +36,9 @@ import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.concurrent.schedule
 import kotlin.math.max
 
 
@@ -79,7 +84,7 @@ object WitherDragons : Module(
     val sendSpawned: Boolean by BooleanSetting("Send Dragon Spawned", true, description = "Sends a message when a dragon has spawned.").withDependency { dragonAlerts }
     val sendSpray: Boolean by BooleanSetting("Send Ice Sprayed", true, description = "Sends a message when a dragon has been ice sprayed.").withDependency { dragonAlerts }
     val sendArrowHit: Boolean by BooleanSetting("Send Arrows Hit", true, description = "Sends a message when a dragon dies with how many arrows were hit.").withDependency { dragonAlerts }
-    var arrowsHit: Int = 0
+    private var arrowsHit: Int = 0
 
     private val dragonHealth: Boolean by BooleanSetting("Dragon Health", true, description = "Displays the health of M7 dragons.")
 
@@ -114,6 +119,7 @@ object WitherDragons : Module(
                 it.spawnTime()
             }
             DragonTimer.toRender = ArrayList()
+            lastDragonDeaths.clear()
             lastDragonDeath = ""
         }
 
@@ -126,8 +132,8 @@ object WitherDragons : Module(
         }
 
         onPacket(S29PacketSoundEffect::class.java, { DungeonUtils.getPhase() == Island.M7P5 }) {
-            if (it.soundName != "random.successful_hit" && sendArrowHit) return@onPacket
-            if (::priorityDragon.isInitialized && priorityDragon.entity?.isEntityAlive == true) arrowsHit++
+            if (it.soundName != "random.successful_hit" && sendArrowHit && !::priorityDragon.isInitialized) return@onPacket
+            if (priorityDragon.entity?.isEntityAlive == true && System.currentTimeMillis() - priorityDragon.spawnedTime < priorityDragon.skipKillTime) arrowsHit++
         }
 
         onPacket(S04PacketEntityEquipment::class.java, { DungeonUtils.getPhase() == Island.M7P5 }) {
@@ -158,12 +164,12 @@ object WitherDragons : Module(
     @SubscribeEvent
     fun onEntityJoin(event: EntityJoinWorldEvent) {
         if (DungeonUtils.getPhase() != Island.M7P5) return
-        dragonJoinWorld(event)
+            dragonJoinWorld(event)
     }
 
     @SubscribeEvent
     fun onEntityLeave(event: LivingDeathEvent) {
-        dragonLeaveWorld(event, priorityDragon)
+            dragonLeaveWorld(event)
     }
 
     @SubscribeEvent
@@ -171,4 +177,26 @@ object WitherDragons : Module(
         if (DungeonUtils.getPhase() != Island.M7P5) return
         if (dragonHealth) renderHP(event)
     }
+
+    fun arrowDeath(dragon: WitherDragonsEnum) {
+        if (::priorityDragon.isInitialized && dragon == priorityDragon) {
+            if (sendArrowHit && System.currentTimeMillis() - dragon.spawnedTime < dragon.skipKillTime) {
+                modMessage("§fYou have hit §6$arrowsHit §farrows on §${priorityDragon.colorCode}${priorityDragon.name}")
+                arrowsHit = 0
+            }
+        }
+    }
+
+    fun arrowSpawn(dragon: WitherDragonsEnum) {
+        if (::priorityDragon.isInitialized) {
+            arrowsHit = 0
+            Timer().schedule(dragon.skipKillTime) {
+                if (dragon.entity?.isEntityAlive == true && dragon == priorityDragon) {
+                    modMessage("§fYou hit §6${arrowsHit} §fon §${dragon.colorCode}${dragon.name} §fin §c${String.format("%.2f", dragon.skipKillTime.toFloat())} §fSeconds.")
+                    arrowsHit = 0
+                }
+            }
+        }
+    }
+
 }
