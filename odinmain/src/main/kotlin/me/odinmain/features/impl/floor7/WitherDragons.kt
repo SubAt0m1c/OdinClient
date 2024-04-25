@@ -133,7 +133,7 @@ object WitherDragons : Module(
 
         onPacket(S29PacketSoundEffect::class.java, { DungeonUtils.getPhase() == Island.M7P5 }) {
             if (it.soundName != "random.successful_hit" && sendArrowHit && !::priorityDragon.isInitialized) return@onPacket
-            if (priorityDragon.entity?.isEntityAlive == true && System.currentTimeMillis() - priorityDragon.spawnedTime < priorityDragon.skipKillTime) arrowsHit++
+            if (priorityDragon.entity?.isEntityAlive == true && System.currentTimeMillis() - priorityDragon.spawnedTime < priorityDragon.skipKillTime) arrowsHit += 1
         }
 
         onPacket(S04PacketEntityEquipment::class.java, { DungeonUtils.getPhase() == Island.M7P5 }) {
@@ -196,7 +196,7 @@ object WitherDragons : Module(
             resetArrows()
             Timer().schedule(dragon.skipKillTime) {
                 if (dragon.entity?.isEntityAlive == true && dragon == priorityDragon) {
-                    modMessage("§fYou hit §6${arrowsHit} §fon §${dragon.colorCode}${dragon.name} §fin §c${String.format("%.2f", dragon.skipKillTime.toFloat())} §fSeconds.")
+                    modMessage("§fYou hit §6${arrowsHit} §fon §${dragon.colorCode}${dragon.name} §fin §c${String.format("%.2f", dragon.skipKillTime.toFloat()/1000)} §fSeconds.")
                     resetArrows()
                 }
             }
