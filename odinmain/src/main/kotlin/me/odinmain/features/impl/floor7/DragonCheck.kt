@@ -56,8 +56,7 @@ object DragonCheck {
     fun dragonLeaveWorld(event: LivingDeathEvent) {
         if (event.entity.name != "Ender Dragon") return
 
-        val dragon = WitherDragonsEnum.entries.find {it.entity == event.entity} ?: return modMessage("Couldn't find matching dragon.")
-
+        val dragon = WitherDragonsEnum.entries.find {it.entity == event.entity} ?: return
         if (sendTime) {
             // ToDo: Fix pbs not saving at all
             val oldPB = dragon.dragonKillPBs.value
@@ -98,7 +97,7 @@ object DragonCheck {
             )
         ) return
 
-        if (lastDragonDeath == "") modMessage("Could not find last dragon death.")
+        if (lastDragonDeath == "") modMessage("Couldn't find last dragon death. DM SubAt0mic with this message.")
         val dragon = WitherDragonsEnum.entries.find { lastDragonDeath == it.name } ?: return
         lastDragonDeath = ""
         if (sendNotification) modMessage("§${dragon.colorCode}${dragon.name} dragon counts.")
