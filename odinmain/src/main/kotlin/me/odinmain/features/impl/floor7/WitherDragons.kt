@@ -26,6 +26,7 @@ import me.odinmain.utils.render.roundedRectangle
 import me.odinmain.utils.skyblock.Island
 import me.odinmain.utils.skyblock.dungeon.DungeonUtils
 import me.odinmain.utils.skyblock.modMessage
+import net.minecraft.entity.boss.EntityDragon
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S04PacketEntityEquipment
 import net.minecraft.network.play.server.S29PacketSoundEffect
@@ -167,6 +168,8 @@ object WitherDragons : Module(
 
     @SubscribeEvent
     fun onEntityLeave(event: LivingDeathEvent) {
+        if (DungeonUtils.getPhase() != Island.M7P5) return
+            if (event.entity is EntityDragon) modMessage("Found Dragon Death")
             dragonLeaveWorld(event)
     }
 

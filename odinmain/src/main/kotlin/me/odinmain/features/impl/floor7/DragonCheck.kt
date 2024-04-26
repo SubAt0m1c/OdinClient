@@ -2,6 +2,7 @@ package me.odinmain.features.impl.floor7
 
 import me.odinmain.OdinMain.mc
 import me.odinmain.config.Config
+import me.odinmain.events.impl.EntityLeaveWorldEvent
 import me.odinmain.features.impl.floor7.WitherDragons.arrowDeath
 import me.odinmain.features.impl.floor7.WitherDragons.arrowSpawn
 import me.odinmain.features.impl.floor7.WitherDragons.sendArrowHit
@@ -14,6 +15,7 @@ import me.odinmain.features.impl.skyblock.ArrowHit.resetOnDragons
 import me.odinmain.utils.equalsOneOf
 import me.odinmain.utils.isVecInXZ
 import me.odinmain.utils.skyblock.modMessage
+import net.minecraft.entity.Entity
 import net.minecraft.entity.boss.EntityDragon
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.init.Blocks
@@ -52,8 +54,9 @@ object DragonCheck {
     }
 
     fun dragonLeaveWorld(event: LivingDeathEvent) {
-        if (event.entity !is EntityDragon) return
-        val dragon = WitherDragonsEnum.entries.find {it.entity?.entityId == event.entity.entityId} ?: return
+        if (event.entity.name != "Ender Dragon") return
+
+        val dragon = WitherDragonsEnum.entries.find {it.entity == event.entity} ?: return modMessage("Couldn't find matching dragon.")
 
         if (sendTime) {
             // ToDo: Fix pbs not saving at all
@@ -96,7 +99,9 @@ object DragonCheck {
             )
         ) return
 
+        if (lastDragonDeath == "") modMessage("Could not find last dragon death.")
         val dragon = WitherDragonsEnum.entries.find { lastDragonDeath == it.name } ?: return
+        lastDragonDeath = ""
         if (sendNotification) modMessage("§${dragon.colorCode}${dragon.name} dragon counts.")
     }
 
