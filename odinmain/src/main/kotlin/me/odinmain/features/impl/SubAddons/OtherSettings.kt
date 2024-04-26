@@ -7,6 +7,7 @@ import me.odinmain.events.impl.PacketSentEvent
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.impl.floor7.p3.TerminalSolver
+import me.odinmain.features.impl.floor7.p3.TerminalTypes
 import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.BooleanSetting
 import me.odinmain.utils.skyblock.heldItem
@@ -34,9 +35,8 @@ object OtherSettings : Module(
     @SubscribeEvent
     fun onSlotClick(event: PacketSentEvent) {
         if (!terminals) return
-        if (event.packet !is C0EPacketClickWindow || TerminalSolver.currentTerm == -1) return
+        if (event.packet !is C0EPacketClickWindow || TerminalSolver.currentTerm == TerminalTypes.NONE) return
         if ((event.packet as C0EPacketClickWindow).slotId in TerminalSolver.solution) return
         event.isCanceled = true
     }
-
 }
