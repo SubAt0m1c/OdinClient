@@ -37,7 +37,7 @@ object ModuleManager {
     data class PacketFunction<T : Packet<*>>(
         val type: Class<T>,
         val function: (T) -> Unit,
-        val shouldRun: () -> Boolean
+        val shouldRun: () -> Boolean,
     )
 
     data class MessageFunction(val filter: Regex, val shouldRun: () -> Boolean, val function: (String) -> Unit)
@@ -157,7 +157,7 @@ object ModuleManager {
     }
 
     @SubscribeEvent
-    fun onReceivePacket(event: ReceivePacketEvent) {
+    fun onReceivePacket(event: PacketReceivedEvent) {
         packetFunctions
             .filter { it.type.isInstance(event.packet) && it.shouldRun.invoke() }
             .forEach { it.function(event.packet) }

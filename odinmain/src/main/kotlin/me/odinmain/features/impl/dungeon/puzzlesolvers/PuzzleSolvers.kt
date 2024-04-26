@@ -45,9 +45,6 @@ object PuzzleSolvers : Module(
         IceFillSolver.reset()
     }.withDependency { iceFillSolver }
 
-    override fun onKeybind() {
-        IceFillSolver.reset()
-    }
     init {
         execute(500) {
             if (waterSolver) WaterSolver.scan()
@@ -82,8 +79,7 @@ object PuzzleSolvers : Module(
 
     @SubscribeEvent
     fun onTick(event: TickEvent.ClientTickEvent) {
-        if (tttSolver)TicTacToe.tttTick(event)
-        //if (iceFillSolver) IceFillSolver.onClientTick(event)
+        if (tttSolver) TicTacToe.tttTick(event)
     }
 
     @SubscribeEvent
@@ -94,6 +90,6 @@ object PuzzleSolvers : Module(
     @SubscribeEvent
     fun onRoomEnter(event: EnteredDungeonRoomEvent) {
         IceFillSolver.enterDungeonRoom(event)
-        BlazeSolver.getRoomType()
+        //BlazeSolver.getRoomType()
     }
 }

@@ -11,6 +11,7 @@ import me.odinmain.utils.render.RenderUtils.bind
 import me.odinmain.utils.render.RenderUtils.worldRenderer
 import me.odinmain.utils.skyblock.IceFillFloors.floors
 import me.odinmain.utils.skyblock.IceFillFloors.representativeFloors
+import me.odinmain.utils.skyblock.dungeon.DungeonUtils
 import me.odinmain.utils.skyblock.dungeon.tiles.Rotations
 import me.odinmain.utils.skyblock.getBlockIdAt
 import me.odinmain.utils.skyblock.isAir
@@ -29,14 +30,13 @@ object IceFillSolver {
     private var renderRotation: Rotations? = null
     private var rPos: MutableList<Vec3> = ArrayList()
 
-
     private fun renderPattern(pos: Vec3, rotation: Rotations) {
         renderRotation = rotation
         rPos.add(Vec3(pos.xCoord + 0.5, pos.yCoord + 0.1, pos.zCoord + 0.5))
     }
 
     fun onRenderWorldLast(color: Color) {
-        if (currentPatterns.size == 0 || rPos.size == 0 /*|| DungeonUtils.currentRoomName != "Ice Fill"*/) return
+        if (currentPatterns.size == 0 || rPos.size == 0 || DungeonUtils.currentRoomName != "Ice Fill") return
         val rotation = renderRotation ?: return
 
         GlStateManager.pushMatrix()
@@ -66,11 +66,12 @@ object IceFillSolver {
     }
 
     fun enterDungeonRoom(event: EnteredDungeonRoomEvent) {
-        if (event.room?.room?.data?.name != "Ice Fill") return
+        if (event.room?.room?.data?.name != "Ice Fill" || scanned) return
         val rotation = event.room.room.rotation
 
         val centerPos = Vec2(event.room.room.x, event.room.room.z).addRotationCoords(rotation, 8)
         scanAllFloors(Vec3(centerPos.x.toDouble(), 70.0, centerPos.z.toDouble()), rotation)
+        scanned = true
     }
 
     private fun scanAllFloors(pos: Vec3, rotation: Rotations) {
@@ -83,7 +84,7 @@ object IceFillSolver {
         scan(pos.addVec(b.x, b.y, b.z), 2, rotation)
     }
 
-    private fun scan(pos: Vec3, floorIndex: Int, rotation: Rotations): Boolean {
+    private fun scan(pos: Vec3, floorIndex: Int, rotation: Rotations) {
         val bPos = BlockPos(pos)
 
         val floorHeight = representativeFloors[floorIndex]
@@ -95,15 +96,14 @@ object IceFillSolver {
                 !isAir(bPos.add(transform(floorHeight[index].second, rotation)))
             ) {
                 val scanTime: Double = (System.nanoTime() - startTime) / 1000000.0
-                modMessage("Floor ${floorIndex + 1} scan took ${scanTime}ms")
+                modMessage("Section ${floorIndex + 1} scan took ${scanTime}ms pattern: ${index + 1}")
 
                 renderPattern(pos, rotation)
                 currentPatterns.add(floors[floorIndex][index].toMutableList())
-                return true
+                return
             }
         }
         modMessage("§cFailed to scan floor ${floorIndex + 1}")
-        return false
     }
 
     fun transform(vec: Vec3i, rotation: Rotations): Vec3i {
