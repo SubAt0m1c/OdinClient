@@ -169,7 +169,6 @@ object WitherDragons : Module(
     @SubscribeEvent
     fun onEntityLeave(event: LivingDeathEvent) {
         if (DungeonUtils.getPhase() != Island.M7P5) return
-            if (event.entity is EntityDragon) modMessage("Found Dragon Death")
             dragonLeaveWorld(event)
     }
 
