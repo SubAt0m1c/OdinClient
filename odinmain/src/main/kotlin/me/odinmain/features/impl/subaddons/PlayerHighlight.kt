@@ -18,7 +18,7 @@ import me.odinmain.utils.render.RenderUtils
 import me.odinmain.utils.render.RenderUtils.renderVec
 import me.odinmain.utils.render.Renderer
 import me.odinmain.utils.skyblock.LocationUtils.inSkyblock
-import me.odinmain.features.impl.SubAddons.SubUtils.isOnTeam
+import me.odinmain.features.impl.subaddons.SubUtils.isOnTeam
 import net.minecraft.entity.Entity
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent

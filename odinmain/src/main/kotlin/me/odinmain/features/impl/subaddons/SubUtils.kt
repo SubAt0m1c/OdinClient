@@ -1,4 +1,4 @@
-package me.odinmain.features.impl.SubAddons
+package me.odinmain.features.impl.subaddons
 
 import me.odinmain.OdinMain.mc
 import net.minecraft.entity.Entity

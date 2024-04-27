@@ -1,6 +1,5 @@
 package me.odinmain.features.impl.subaddons
 
-import com.sun.org.apache.xpath.internal.operations.Bool
 import me.odinmain.OdinMain.onLegitVersion
 import me.odinmain.events.impl.ClickEvent
 import me.odinmain.events.impl.PacketSentEvent
