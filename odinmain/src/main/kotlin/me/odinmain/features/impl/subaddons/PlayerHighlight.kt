@@ -1,7 +1,7 @@
 
 package me.odinmain.features.impl.subaddons
 
-import me.odinmain.OdinMain.onLegitVersion
+import me.odinmain.OdinMain.isLegitVersion
 import me.odinmain.events.impl.PostEntityMetadata
 import me.odinmain.events.impl.RenderEntityModelEvent
 import me.odinmain.features.Category
@@ -33,17 +33,17 @@ object PlayerHighlight : Module(
     private val scanDelay: Long by NumberSetting("Scan Delay", 500L, 10L, 2000L, 100L)
     val mode: Int by SelectorSetting("Mode", "Outline", arrayListOf("Outline", "Overlay", "Boxes", "2D"))
     val thickness: Float by NumberSetting("Line Width", 5f, .5f, 20f, .1f, description = "The line width of Outline/ Boxes/ 2D Boxes").withDependency { mode.equalsOneOf(0, 2, 3) }
-    private val tracerLimit: Int by NumberSetting("Tracer Limit", 0, 0, 15, description = "Highlight will draw tracer to all mobs when you have under this amount of mobs marked, set to 0 to disable. Helpful for finding lost mobs.").withDependency { !onLegitVersion }
+    private val tracerLimit: Int by NumberSetting("Tracer Limit", 0, 0, 15, description = "Highlight will draw tracer to all mobs when you have under this amount of mobs marked, set to 0 to disable. Helpful for finding lost mobs.").withDependency { !isLegitVersion }
 
-    private val xray: Boolean by BooleanSetting("Through Walls", true).withDependency { !onLegitVersion }
-    private val showinvis: Boolean by BooleanSetting("Show Invis", false).withDependency { !onLegitVersion }
+    private val xray: Boolean by BooleanSetting("Through Walls", true).withDependency { !isLegitVersion }
+    private val showinvis: Boolean by BooleanSetting("Show Invis", false).withDependency { !isLegitVersion }
     private val cancelHurt: Boolean by BooleanSetting("Cancel Hurt", true).withDependency { mode != 1 }
     private val advanced: Boolean by DropdownSetting("Show Settings", false)
     private val teamColor: Color by ColorSetting("Team Color", Color.CYAN, true).withDependency { advanced }
     private val oppColor: Color by ColorSetting("Opponent Color", Color.RED, true).withDependency { advanced }
     val color: Color by ColorSetting("Backup Color", Color.ORANGE, true).withDependency { advanced }
 
-    private val renderThrough: Boolean get() = if (onLegitVersion) false else xray
+    private val renderThrough: Boolean get() = if (isLegitVersion) false else xray
 
     private var currentplayers = mutableSetOf<Entity>()
 
@@ -75,7 +75,7 @@ object PlayerHighlight : Module(
 
     @SubscribeEvent
     fun onRenderWorldLast(event: RenderWorldLastEvent) {
-        val tracerPlayers = currentplayers.filter { (renderThrough || (mc.thePlayer.canEntityBeSeen(it) && !onLegitVersion) ) && (!it.isInvisible || showinvis) }
+        val tracerPlayers = currentplayers.filter { (renderThrough || (mc.thePlayer.canEntityBeSeen(it) && !isLegitVersion) ) && (!it.isInvisible || showinvis) }
         profile("tracers") {tracerPlayers.forEach {
 
             val displayColor = when {

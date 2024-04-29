@@ -1,6 +1,6 @@
 package me.odinmain.features.impl.subaddons
 
-import me.odinmain.OdinMain.onLegitVersion
+import me.odinmain.OdinMain.isLegitVersion
 import me.odinmain.events.impl.ClickEvent
 import me.odinmain.events.impl.PacketSentEvent
 import me.odinmain.features.Category
@@ -19,7 +19,7 @@ object OtherSettings : Module(
     category = Category.SUBADDONS,
     description = "Settings for other modules"
 ) {
-    private val legitSettings by BooleanSetting("Legit Settings", false, description = "Allows some cheater features on legit").withDependency { onLegitVersion }
+    private val legitSettings by BooleanSetting("Legit Settings", false, description = "Allows some cheater features on legit").withDependency { isLegitVersion }
     val gyro: Boolean by BooleanSetting("Block align", false, description = "Blocks Align").withDependency { legitSettings }
     val terminals: Boolean by BooleanSetting("Block Wrong Terms", false, description = "Blocks wrong clicks in terminals.").withDependency { legitSettings }
     val tempwaypointsAnywhere: Boolean by BooleanSetting("Temp Waypoints anywhere", true, description = "Allows temp waypoints anywhere, specifically outside skyblock")
