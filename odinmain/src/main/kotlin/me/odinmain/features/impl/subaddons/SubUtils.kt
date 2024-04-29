@@ -13,4 +13,8 @@ object SubUtils {
         return false
     }
 
+    fun Entity.isIt(): Boolean {
+        return this.displayName.unformattedText.startsWith("[IT]")
+    }
+
 }

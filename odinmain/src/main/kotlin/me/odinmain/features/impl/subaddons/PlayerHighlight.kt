@@ -6,6 +6,7 @@ import me.odinmain.events.impl.PostEntityMetadata
 import me.odinmain.events.impl.RenderEntityModelEvent
 import me.odinmain.features.Category
 import me.odinmain.features.Module
+import me.odinmain.features.impl.subaddons.SubUtils.isIt
 import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.*
 import me.odinmain.utils.ServerUtils.getPing
@@ -66,6 +67,7 @@ object PlayerHighlight : Module(
         if (mode != 0 || event.entity !in currentplayers || (!mc.thePlayer.canEntityBeSeen(event.entity) && !renderThrough)) return
 
         val displayColor = when {
+            event.entity.isIt() && event.entity.getPing() == 1 -> color
             !event.entity.isOnTeam() && event.entity.getPing() == 1 -> oppColor
             event.entity.isOnTeam() && event.entity.getPing() == 1 -> teamColor
             else -> color
@@ -79,6 +81,7 @@ object PlayerHighlight : Module(
         profile("tracers") {tracerPlayers.forEach {
 
             val displayColor = when {
+                it.isIt() && it.getPing() == 1 -> color
                 !it.isOnTeam() && it.getPing() == 1 -> oppColor
                 it.isOnTeam() && it.getPing() == 1 -> teamColor
                 else -> color
