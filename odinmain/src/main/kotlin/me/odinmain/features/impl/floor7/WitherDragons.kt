@@ -1,5 +1,6 @@
 package me.odinmain.features.impl.floor7
 
+import me.odinmain.events.impl.PacketReceivedEvent
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.impl.floor7.DragonBoxes.renderBoxes
@@ -26,12 +27,10 @@ import me.odinmain.utils.render.roundedRectangle
 import me.odinmain.utils.skyblock.Island
 import me.odinmain.utils.skyblock.dungeon.DungeonUtils
 import me.odinmain.utils.skyblock.modMessage
-import net.minecraft.entity.boss.EntityDragon
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S04PacketEntityEquipment
 import net.minecraft.network.play.server.S29PacketSoundEffect
 import net.minecraft.network.play.server.S2APacketParticles
-import net.minecraftforge.client.event.RenderLivingEvent
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
@@ -153,6 +152,7 @@ object WitherDragons : Module(
     fun onRenderWorld(event: RenderWorldLastEvent) {
         if (DungeonUtils.getPhase() != Island.M7P5) return
 
+        if (dragonHealth) renderHP()
         if (dragonTimer) renderTime()
         if (dragonBoxes) renderBoxes()
         if (::priorityDragon.isInitialized) {
@@ -170,12 +170,6 @@ object WitherDragons : Module(
     fun onEntityLeave(event: LivingDeathEvent) {
         if (DungeonUtils.getPhase() != Island.M7P5) return
             dragonLeaveWorld(event)
-    }
-
-    @SubscribeEvent
-    fun onRenderLivingPost(event: RenderLivingEvent.Post<*>) {
-        if (DungeonUtils.getPhase() != Island.M7P5) return
-        if (dragonHealth) renderHP(event)
     }
 
     fun arrowDeath(dragon: WitherDragonsEnum) {
