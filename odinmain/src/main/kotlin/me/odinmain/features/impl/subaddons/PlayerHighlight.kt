@@ -75,32 +75,23 @@ object PlayerHighlight : Module(
     @SubscribeEvent
     fun onRenderEntityModel(event: RenderEntityModelEvent) {
         if (mode != 0 || event.entity !in currentplayers || (!mc.thePlayer.canEntityBeSeen(event.entity) && !renderThrough)) return
-
-        val displayColor = getDisplayColor(event.entity)
-
-        if (!event.entity.isInvisible || showinvis) profile("Outline Esp") { OutlineUtils.outlineEntity(event, thickness, displayColor, cancelHurt) }
+        if (!event.entity.isInvisible || showinvis) profile("Outline Esp") { OutlineUtils.outlineEntity(event, thickness, getDisplayColor(event.entity), cancelHurt) }
     }
 
     @SubscribeEvent
     fun onRenderWorldLast(event: RenderWorldLastEvent) {
         val tracerPlayers = currentplayers.filter { (renderThrough || (mc.thePlayer.canEntityBeSeen(it) && !isLegitVersion) ) && (!it.isInvisible || showinvis) }
         profile("tracers") {tracerPlayers.forEach {
-
-            val displayColor = getDisplayColor(it)
-
             if (tracerPlayers.size < tracerLimit)
-                RenderUtils.draw3DLine(getPositionEyes(mc.thePlayer.renderVec), getPositionEyes(it.renderVec), displayColor,
+                RenderUtils.draw3DLine(getPositionEyes(mc.thePlayer.renderVec), getPositionEyes(it.renderVec), getDisplayColor(it),
                     2F, false)
         }}
 
         profile("ESP") { currentplayers.forEach {
-
-            val displayColor = getDisplayColor(it)
-
             if (mode == 2 && (!it.isInvisible || showinvis))
-                Renderer.drawBox(it.entityBoundingBox, displayColor, thickness, depth = !renderThrough, fillAlpha = 0)
+                Renderer.drawBox(it.entityBoundingBox, getDisplayColor(it), thickness, depth = !renderThrough, fillAlpha = 0)
             else if (mode == 3 && (mc.thePlayer.canEntityBeSeen(it) || renderThrough) && (!it.isInvisible || showinvis))
-                Renderer.draw2DEntity(it, thickness, displayColor)
+                Renderer.draw2DEntity(it, thickness, getDisplayColor(it))
         }}
     }
 
