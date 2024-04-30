@@ -1,6 +1,7 @@
 package me.odinmain.features.impl.subaddons
 
 import me.odinmain.OdinMain.mc
+import me.odinmain.utils.ServerUtils.getPing
 import net.minecraft.entity.Entity
 
 object SubUtils {
@@ -17,4 +18,7 @@ object SubUtils {
         return this.displayName.unformattedText.startsWith("§c[IT]")
     }
 
+    fun Entity.isPlayer(): Boolean {
+        return this.getPing() == 1
+    }
 }

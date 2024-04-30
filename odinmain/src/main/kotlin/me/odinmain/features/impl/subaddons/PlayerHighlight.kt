@@ -20,6 +20,7 @@ import me.odinmain.utils.render.RenderUtils.renderVec
 import me.odinmain.utils.render.Renderer
 import me.odinmain.utils.skyblock.LocationUtils.inSkyblock
 import me.odinmain.features.impl.subaddons.SubUtils.isOnTeam
+import me.odinmain.features.impl.subaddons.SubUtils.isPlayer
 import net.minecraft.entity.Entity
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -50,9 +51,9 @@ object PlayerHighlight : Module(
 
     private fun getDisplayColor(entity: Entity): Color {
         val displayColor = when {
-            entity.isIt() && entity.getPing() == 1 -> color
-            !entity.isOnTeam() && entity.getPing() == 1 -> oppColor
-            entity.isOnTeam() && entity.getPing() == 1 -> teamColor
+            entity.isIt() -> color
+            !entity.isOnTeam()-> oppColor
+            entity.isOnTeam() -> teamColor
             else -> color
         }
         return displayColor
@@ -108,7 +109,7 @@ object PlayerHighlight : Module(
     }
 
     private fun checkEntity(entity: Entity) {
-        if (!inSkyblock && entity.getPing() == 1 && entity != mc.thePlayer) currentplayers.add(entity)
+        if (!inSkyblock && entity.isPlayer() && entity != mc.thePlayer) currentplayers.add(entity)
     }
 }
 
