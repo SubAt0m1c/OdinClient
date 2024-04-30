@@ -36,7 +36,7 @@ object PlayerHighlight : Module(
     val mode: Int by SelectorSetting("Mode", "Outline", arrayListOf("Outline", "Overlay", "Boxes", "2D"))
     val thickness: Float by NumberSetting("Line Width", 5f, .5f, 20f, .1f, description = "The line width of Outline/ Boxes/ 2D Boxes").withDependency { mode.equalsOneOf(0, 2, 3) }
     private val tracerLimit: Int by NumberSetting("Tracer Limit", 0, 0, 15, description = "Highlight will draw tracer to all mobs when you have under this amount of mobs marked, set to 0 to disable. Helpful for finding lost mobs.").withDependency { !isLegitVersion }
-
+    //the way these tracers work without xray, it might actually still be legit according to SkyHanni. Not sure how but /shrug
     private val xray: Boolean by BooleanSetting("Through Walls", true).withDependency { !isLegitVersion }
     private val showinvis: Boolean by BooleanSetting("Show Invis", false).withDependency { !isLegitVersion }
     private val cancelHurt: Boolean by BooleanSetting("Cancel Hurt", true).withDependency { mode != 1 }

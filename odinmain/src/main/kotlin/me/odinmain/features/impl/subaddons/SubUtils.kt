@@ -15,10 +15,10 @@ object SubUtils {
     }
 
     fun Entity.isIt(): Boolean {
-        return this.displayName.unformattedText.startsWith("§c[IT]")
+        return this.displayName.unformattedText.startsWith("§c[IT]") //Who plays tnt tag??
     }
 
     fun Entity.isPlayer(): Boolean {
-        return this.getPing() == 1
+        return this.getPing() == 1 //this method doesn't work in lobbies, for some reason.
     }
 }
