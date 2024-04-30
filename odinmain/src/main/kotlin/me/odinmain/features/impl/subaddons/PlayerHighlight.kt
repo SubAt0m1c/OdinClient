@@ -48,6 +48,16 @@ object PlayerHighlight : Module(
 
     private var currentplayers = mutableSetOf<Entity>()
 
+    private fun getDisplayColor(entity: Entity): Color {
+        val displayColor = when {
+            entity.isIt() && entity.getPing() == 1 -> color
+            !entity.isOnTeam() && entity.getPing() == 1 -> oppColor
+            entity.isOnTeam() && entity.getPing() == 1 -> teamColor
+            else -> color
+        }
+        return displayColor
+    }
+
     init {
         execute({ scanDelay }) {
             currentplayers.removeAll { it.isDead }
@@ -66,12 +76,8 @@ object PlayerHighlight : Module(
     fun onRenderEntityModel(event: RenderEntityModelEvent) {
         if (mode != 0 || event.entity !in currentplayers || (!mc.thePlayer.canEntityBeSeen(event.entity) && !renderThrough)) return
 
-        val displayColor = when {
-            event.entity.isIt() && event.entity.getPing() == 1 -> color
-            !event.entity.isOnTeam() && event.entity.getPing() == 1 -> oppColor
-            event.entity.isOnTeam() && event.entity.getPing() == 1 -> teamColor
-            else -> color
-        }
+        val displayColor = getDisplayColor(event.entity)
+
         if (!event.entity.isInvisible || showinvis) profile("Outline Esp") { OutlineUtils.outlineEntity(event, thickness, displayColor, cancelHurt) }
     }
 
@@ -80,12 +86,7 @@ object PlayerHighlight : Module(
         val tracerPlayers = currentplayers.filter { (renderThrough || (mc.thePlayer.canEntityBeSeen(it) && !isLegitVersion) ) && (!it.isInvisible || showinvis) }
         profile("tracers") {tracerPlayers.forEach {
 
-            val displayColor = when {
-                it.isIt() && it.getPing() == 1 -> color
-                !it.isOnTeam() && it.getPing() == 1 -> oppColor
-                it.isOnTeam() && it.getPing() == 1 -> teamColor
-                else -> color
-            }
+            val displayColor = getDisplayColor(it)
 
             if (tracerPlayers.size < tracerLimit)
                 RenderUtils.draw3DLine(getPositionEyes(mc.thePlayer.renderVec), getPositionEyes(it.renderVec), displayColor,
@@ -94,11 +95,7 @@ object PlayerHighlight : Module(
 
         profile("ESP") { currentplayers.forEach {
 
-            val displayColor = when {
-                !it.isOnTeam() && it.getPing() == 1 -> oppColor
-                it.isOnTeam() && it.getPing() == 1 -> teamColor
-                else -> color
-            }
+            val displayColor = getDisplayColor(it)
 
             if (mode == 2 && (!it.isInvisible || showinvis))
                 Renderer.drawBox(it.entityBoundingBox, displayColor, thickness, depth = !renderThrough, fillAlpha = 0)

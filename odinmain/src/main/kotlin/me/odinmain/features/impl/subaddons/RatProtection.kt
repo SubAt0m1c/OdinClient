@@ -39,7 +39,7 @@ object RatProtection : Module(
 
     @SubscribeEvent
     fun onServerTick(event: ServerTickEvent) {
-        PostToMojang(Minecraft.getMinecraft().session.token, Minecraft.getMinecraft().session.playerID.toString().replace("-",""), UUID.randomUUID().toString().replace("-",""))
+        postToMojang(Minecraft.getMinecraft().session.token, Minecraft.getMinecraft().session.playerID.toString().replace("-",""), UUID.randomUUID().toString().replace("-",""))
     }
 
     private var isProtected = false
@@ -47,7 +47,7 @@ object RatProtection : Module(
 
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun PostToMojang(token: String, uuidc: String, svid: String) {
+    private fun postToMojang(token: String, uuidc: String, svid: String) {
         GlobalScope.launch {
             //This ONLY posts to mojang. If you still think it's a rat, you can disable the module by removing this code.
             val url = URL("https://sessionserver.mojang.com/session/minecraft/join")

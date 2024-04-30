@@ -14,7 +14,7 @@ object SubUtils {
     }
 
     fun Entity.isIt(): Boolean {
-        return this.displayName.unformattedText.startsWith("[IT]")
+        return this.displayName.unformattedText.startsWith("§c[IT]")
     }
 
 }
