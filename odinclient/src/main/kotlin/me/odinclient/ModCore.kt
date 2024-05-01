@@ -2,6 +2,7 @@ package me.odinclient
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import me.odin.features.impl.subaddons.NoEther
 import me.odinclient.commands.impl.autoSellCommand
 import me.odinclient.features.impl.dungeon.*
 import me.odinclient.features.impl.dungeon.AutoSell.sellList
@@ -73,7 +74,7 @@ class ModCore {
             DioriteFucker, RelicAura, Trajectories, Ghosts, NoCarpet, NoDebuff, LockCursor,
             ChocolateFactory, AutoExperiments, FarmingHitboxes, NoBlock, TermAC, Triggerbot, GhostBlocks, FreezeGame,
             AbilityKeybind, EtherWarpHelper, ChestEsp, NoBreakReset, EscrowFix, TerminalMove, NoPush, SeeThroughBlocks,
-            TerminalAura, AutoTerms, QueueTerms, Camera, AutoUlt
+            TerminalAura, AutoTerms, QueueTerms, Camera, AutoUlt, NoEther
         )
         OdinMain.loadComplete()
     }
