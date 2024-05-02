@@ -1,6 +1,5 @@
 package me.odinclient.features.impl.render
 
-import me.odin.features.impl.subaddons.NoEther
 import me.odinclient.mixin.accessors.IEntityPlayerSPAccessor
 import me.odinclient.utils.skyblock.PlayerUtils
 import me.odinmain.events.impl.ClickEvent
@@ -91,13 +90,8 @@ object EtherWarpHelper : Module(
             mc.thePlayer.isSneaking
         ) {
             val pos = etherPos.pos ?: return
-            //this might be weird code but it avoids a crash
-            if (NoEther.enabled) {
-                if (getBlockIdAt(pos) == 152) return
-            } else {
                 mc.thePlayer.setPosition(pos.x + .5, pos.y + 1.0, pos.z + .5)
                 mc.thePlayer.setVelocity(.0, .0, .0)
-            }
         }
     }
 
