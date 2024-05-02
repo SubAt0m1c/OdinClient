@@ -12,10 +12,7 @@ import me.odinmain.features.impl.kuudra.*
 import me.odinmain.features.impl.render.*
 import me.odinmain.features.impl.render.ClickGUIModule.hudChat
 import me.odinmain.features.impl.skyblock.*
-import me.odinmain.features.impl.subaddons.AntiLowball
-import me.odinmain.features.impl.subaddons.OtherSettings
-import me.odinmain.features.impl.subaddons.PlayerHighlight
-import me.odinmain.features.impl.subaddons.RatProtection
+import me.odinmain.features.impl.subaddons.*
 import me.odinmain.features.settings.impl.KeybindSetting
 import me.odinmain.ui.hud.EditHUDGui
 import me.odinmain.ui.hud.HudElement
@@ -125,6 +122,7 @@ object ModuleManager {
         OtherSettings,
         RatProtection,
         AntiLowball,
+        ItemHighlight,
         PlayerDisplay,
         TerminalSimulator
     )
