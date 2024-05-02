@@ -53,10 +53,6 @@ object OtherSettings : Module(
             event.isCanceled = true
         }
 
-        DungeonUtils.currentRoom?.waypoints?.forEach {
-            if (etherPos.vec?.equal(it.toVec3()) == true) modMessage(it.color)
-        }
-
         if (
             noEther &&
             (DungeonUtils.currentRoom?.waypoints?.any { etherPos.vec?.equal(it.toVec3()) == true && (it.color == color()) } == true ||
