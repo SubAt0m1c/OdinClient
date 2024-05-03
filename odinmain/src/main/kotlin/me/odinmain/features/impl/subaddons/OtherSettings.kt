@@ -33,6 +33,8 @@ object OtherSettings : Module(
     private var color: Color by ColorSetting("Block Color", default = Color.GREEN, description = "The color of waypoints that block etherwarps.", allowAlpha = true).withDependency { colorPallet == 0  && noEther}
     private val colorPallet: Int by SelectorSetting("Color pallet", "Red", arrayListOf("None", "Aqua", "Magenta", "Yellow", "Lime", "Red")).withDependency { noEther }
     private val fmeCompat: Boolean by BooleanSetting("FME compatability", default = false, description = "Allows for fme compatability. Uses redstone blocks.").withDependency { noEther }
+    private val editqol: Boolean by BooleanSetting("Edit Mode QOL", false, description = "auto disabled edit mode on world load and stops it from being enabled outside of dungeons")
+
 
     fun color(): Color {
         val color: Color = when (colorPallet) {

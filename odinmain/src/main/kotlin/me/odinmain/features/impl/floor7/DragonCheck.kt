@@ -97,7 +97,7 @@ object DragonCheck {
             )
         ) return
 
-        if (lastDragonDeath == "") modMessage("Couldn't find last dragon death. DM SubAt0mic with this message.")
+        if (lastDragonDeath == "") return
         val dragon = WitherDragonsEnum.entries.find { lastDragonDeath == it.name } ?: return
         lastDragonDeath = ""
         if (sendNotification) modMessage("§${dragon.colorCode}${dragon.name} dragon counts.")
