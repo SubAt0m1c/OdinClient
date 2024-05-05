@@ -14,6 +14,8 @@ import me.odinmain.features.impl.skyblock.ArrowHit.onDragonSpawn
 import me.odinmain.features.impl.skyblock.ArrowHit.resetOnDragons
 import me.odinmain.utils.equalsOneOf
 import me.odinmain.utils.isVecInXZ
+import me.odinmain.utils.pos
+import me.odinmain.utils.skyblock.devMessage
 import me.odinmain.utils.skyblock.modMessage
 import net.minecraft.entity.Entity
 import net.minecraft.entity.boss.EntityDragon
@@ -21,6 +23,7 @@ import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.init.Blocks
 import net.minecraft.item.Item
 import net.minecraft.network.play.server.S04PacketEntityEquipment
+import net.minecraft.network.play.server.S29PacketSoundEffect
 import net.minecraft.util.Vec3
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
@@ -85,6 +88,16 @@ object DragonCheck {
                     it.isSprayed = true
                 }
             }
+        }
+    }
+
+    fun dragonDeathSound(packet: S29PacketSoundEffect) {
+        val loc: Vec3 = packet.pos
+
+        devMessage(packet.soundName)
+        WitherDragonsEnum.entries.forEach {
+            val distance = it.entity?.getDistance(loc.xCoord, loc.yCoord, loc.zCoord)
+            devMessage("Sound effect is $distance from ${it.colorCode}${it.name} dragon")
         }
     }
 
