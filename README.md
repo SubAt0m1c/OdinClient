@@ -20,3 +20,22 @@ We have an installation guide which you can access clicking [here](https://odthe
 Suggestions and bug reports are welcome, please use the [Discord](https://discord.gg/2nCbC9hkxT) for that.
 
 For an organized feature list check the website [here](https://odtheking.github.io/Odin/feature_list_legit).
+
+---
+<h1 align = "center">
+	SubAddons
+</h1>
+SubAddons is a fork of odin including various features unable to go into normal odin. SubAddons attempts to provide updated nightly releases of odin in their most stable state, resulting in less frequent updates but a greater gurantee in quality than that of official odin nightly builds.
+If you do not know how to install, and are not in the discord, I will not be providing instruction. Access to the discord is private, however releases are not. 
+
+Features include, but are not limited to:
+
+AntiLowball: Automatically reports lowballers, with options to hide all functions, or change the style of messages.
+
+Player Highlight: Highlights players based on team.
+
+Rat Protection: Prevents the user from being logged while online.
+
+Various Other Settings: Cancelling wrong clicks on legit, blocking etherwarp to certain waypoints (With an option for compatibility with Funny Map Extras), SBE blood fix, and more.
+
+For bug reports, suggestions, and anything else unrelated to installation, please contact SubAt0mic on discord BEFORE the authors of Odin. 

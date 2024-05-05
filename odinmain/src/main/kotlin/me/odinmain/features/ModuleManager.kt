@@ -122,7 +122,6 @@ object ModuleManager {
         OtherSettings,
         RatProtection,
         AntiLowball,
-        ItemHighlight,
         PlayerDisplay,
         TerminalSimulator
     )

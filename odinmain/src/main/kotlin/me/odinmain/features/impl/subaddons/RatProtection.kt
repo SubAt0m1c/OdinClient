@@ -36,15 +36,12 @@ object RatProtection : Module(
         }
     }
 
-
     @SubscribeEvent
     fun onServerTick(event: ServerTickEvent) {
         postToMojang(Minecraft.getMinecraft().session.token, Minecraft.getMinecraft().session.playerID.toString().replace("-",""), UUID.randomUUID().toString().replace("-",""))
     }
 
     private var isProtected = false
-
-
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun postToMojang(token: String, uuidc: String, svid: String) {

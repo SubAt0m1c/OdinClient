@@ -49,7 +49,7 @@ object HighlightRenderer {
             Renderer.drawBox(it.entity.renderBoundingBox, it.color, it.thickness, depth = it.depth, fillAlpha = 0)
         }
         entities[HighlightType.Box2d]?.forEach {
-            Renderer.draw2DEntity(it.entity, it.thickness * 6, it.color)
+            if (mc.thePlayer.canEntityBeSeen(it.entity) || it.depth) Renderer.draw2DEntity(it.entity, it.thickness * 6, it.color)
         }
     }
 
