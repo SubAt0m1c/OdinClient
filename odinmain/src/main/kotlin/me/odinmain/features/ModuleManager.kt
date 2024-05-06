@@ -123,7 +123,8 @@ object ModuleManager {
         RatProtection,
         AntiLowball,
         PlayerDisplay,
-        TerminalSimulator
+        TerminalSimulator,
+        PosMessages
     )
 
     init {
