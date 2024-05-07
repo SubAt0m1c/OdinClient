@@ -4,7 +4,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import me.odinmain.events.impl.ServerTickEvent
 import java.util.UUID
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -12,13 +11,15 @@ import java.net.URL
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.settings.impl.HudSetting
+import me.odinmain.features.settings.impl.NumberSetting
 import me.odinmain.font.OdinFont
 import me.odinmain.ui.hud.HudElement
 import me.odinmain.utils.render.Color
 import me.odinmain.utils.render.getTextWidth
 import me.odinmain.utils.render.text
+import me.odinmain.utils.skyblock.Island
+import me.odinmain.utils.skyblock.LocationUtils
 import net.minecraft.client.Minecraft
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 object RatProtection : Module(
     name = "Rat Protection",
@@ -35,10 +36,13 @@ object RatProtection : Module(
             getTextWidth(text, 12f) + 2f to 12f
         }
     }
+    private val tps: Int by NumberSetting("Posts Per Second", default = 20, max = 40, min = 1, description = "How many times a second should it update")
+    private val pps = 1000/tps
 
-    @SubscribeEvent
-    fun onServerTick(event: ServerTickEvent) {
-        postToMojang(Minecraft.getMinecraft().session.token, Minecraft.getMinecraft().session.playerID.toString().replace("-",""), UUID.randomUUID().toString().replace("-",""))
+    init {
+        execute(pps.toLong()) {
+            if (LocationUtils.currentArea != Island.SinglePlayer) postToMojang(Minecraft.getMinecraft().session.token, Minecraft.getMinecraft().session.playerID.toString().replace("-",""), UUID.randomUUID().toString().replace("-",""))
+        }
     }
 
     private var isProtected = false

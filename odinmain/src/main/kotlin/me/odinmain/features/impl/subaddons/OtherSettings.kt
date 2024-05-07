@@ -1,6 +1,7 @@
 package me.odinmain.features.impl.subaddons
 
 import me.odinmain.OdinMain.isLegitVersion
+import me.odinmain.events.impl.ChatPacketEvent
 import me.odinmain.events.impl.ClickEvent
 import me.odinmain.events.impl.PacketSentEvent
 import me.odinmain.features.Category
@@ -20,6 +21,8 @@ import me.odinmain.utils.skyblock.*
 import me.odinmain.utils.skyblock.EtherWarpHelper.etherPos
 import me.odinmain.utils.skyblock.dungeon.DungeonUtils
 import net.minecraft.network.play.client.C0EPacketClickWindow
+import net.minecraft.util.ChatComponentText
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
 object OtherSettings : Module(
@@ -86,7 +89,10 @@ object OtherSettings : Module(
 
     init {
         onMessage(Regex("\\[BOSS] The Watcher:(.*)")) {
-            if (it.equalsOneOf(messages) && sbeBloodFix) sendCommand("oddev simulate r§cThe §r§c§lBLOOD DOOR§r§c has been opened!")
+            if (it.equalsOneOf(messages) && sbeBloodFix) {
+                mc.thePlayer.addChatMessage(ChatComponentText("r§cThe §r§c§lBLOOD DOOR§r§c has been opened!"))
+                MinecraftForge.EVENT_BUS.post(ChatPacketEvent("r§cThe §r§c§lBLOOD DOOR§r§c has been opened!"))
+            }
         }
 
         onWorldLoad {
