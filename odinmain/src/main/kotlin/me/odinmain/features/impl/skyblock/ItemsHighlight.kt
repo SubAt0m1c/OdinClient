@@ -12,7 +12,7 @@ import net.minecraft.entity.item.EntityItem
 
 object ItemsHighlight : Module(
     "Item Highlight",
-    description = "Outlines dropped item entities.",
+    description = "Outlines dropped item entities. BUGGY (blame bonsai) (removed from actual odin i just left it in because i cant be bothered readding subaddons itemhighlgiht.)",
     category = Category.RENDER
 ) {
     private val renderThrough: Boolean by BooleanSetting("Through Walls", true)

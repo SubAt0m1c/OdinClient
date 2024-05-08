@@ -3,6 +3,7 @@ package me.odinmain.features.impl.subaddons
 
 import me.odinmain.OdinMain.isLegitVersion
 import me.odinmain.events.impl.PostEntityMetadata
+import me.odinmain.events.impl.RenderEntityModelEvent
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.settings.Setting.Companion.withDependency
@@ -28,10 +29,10 @@ object PlayerHighlight : Module(
     description = "Highlights players"
 ) {
     private val scanDelay: Long by NumberSetting("Scan Delay", 500L, 10L, 2000L, 100L)
-    private val mode: Int by SelectorSetting("Mode", highlightModeDefault, highlightModeList)
-    //val mode: Int by SelectorSetting("Mode", "Outline", arrayListOf("Outline", "Overlay", "Boxes", "2D"))
+    //private val mode: Int by SelectorSetting("Mode", highlightModeDefault, highlightModeList)
+    val mode: Int by SelectorSetting("Mode", "Outline", arrayListOf("Outline", "Overlay", "Boxes", "2D"))
     val thickness: Float by NumberSetting("Line Width", 5f, .5f, 20f, .1f, description = "The line width of Outline/ Boxes/ 2D Boxes").withDependency { mode != HighlightRenderer.HighlightType.Overlay.ordinal }
-    private val glowIntensity: Float by NumberSetting("Glow Intensity", 2f, .5f, 5f, .1f, description = "The intensity of the glow effect.").withDependency { mode == HighlightRenderer.HighlightType.Glow.ordinal }
+    //private val glowIntensity: Float by NumberSetting("Glow Intensity", 2f, .5f, 5f, .1f, description = "The intensity of the glow effect.").withDependency { mode == HighlightRenderer.HighlightType.Glow.ordinal }
     private val tracerLimit: Int by NumberSetting("Tracer Limit", 0, -1, 15, description = "Highlight will draw tracer to all players when you have under this amount of players marked, set to 0 to disable, set to -1 for infinite.").withDependency { !isLegitVersion }
     //the way these tracers work without xray, it might actually still be legit according to SkyHanni. Not sure how but /shrug
     private val xray: Boolean by BooleanSetting("Through Walls", true).withDependency { !isLegitVersion }
@@ -68,17 +69,17 @@ object PlayerHighlight : Module(
 
         onWorldLoad { currentplayers.clear() }
 
-        HighlightRenderer.addEntityGetter({ HighlightRenderer.HighlightType.entries[mode]}) {
+        /*HighlightRenderer.addEntityGetter({ HighlightRenderer.HighlightType.entries[mode]}) {
             if (!enabled) emptyList()
             else currentplayers.map { HighlightRenderer.HighlightEntity(it, getDisplayColor(it), thickness, !renderThrough, glowIntensity) }
-        }
+        }*/
     }
 
-    /** @SubscribeEvent
+    @SubscribeEvent
     fun onRenderEntityModel(event: RenderEntityModelEvent) {
         if (mode != 0 || event.entity !in currentplayers || (!mc.thePlayer.canEntityBeSeen(event.entity) && !renderThrough)) return
-        if (!event.entity.isInvisible || showinvis) profile("Outline Esp") { OutlineUtils.outlineEntity(event, thickness, getDisplayColor(event.entity), cancelHurt) }
-    } */
+        if (!event.entity.isInvisible || showinvis) profile("Outline Esp") { OutlineUtils.outlineEntity(event, thickness, getDisplayColor(event.entity), false) }
+    }
 
     @SubscribeEvent
     fun onRenderWorldLast(event: RenderWorldLastEvent) {
@@ -89,12 +90,12 @@ object PlayerHighlight : Module(
                     2F, false)
         }}
 
-        /** profile("ESP") { currentplayers.forEach {
+        profile("ESP") { currentplayers.forEach {
             if (mode == 2 && (!it.isInvisible || showinvis))
                 Renderer.drawBox(it.entityBoundingBox, getDisplayColor(it), thickness, depth = !renderThrough, fillAlpha = 0)
             else if (mode == 3 && (mc.thePlayer.canEntityBeSeen(it) || renderThrough) && (!it.isInvisible || showinvis))
                 Renderer.draw2DEntity(it, thickness, getDisplayColor(it))
-        }} */
+        }}
     }
 
     @SubscribeEvent
