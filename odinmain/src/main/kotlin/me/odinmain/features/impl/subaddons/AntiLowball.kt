@@ -51,23 +51,23 @@ object AntiLowball : Module(
     private val rateLimitRegex = Regex("Please wait before trying to run this command again!")
     private val noRecentRegex = Regex("That player hasn't sent any messages recently!")
     private val confirmRegex = Regex("Please type /report confirm to log your report for staff review.")
+    private val invalidIgnRegex = Regex("Invalid username. Did you type their name right?")
     private val confirmedRegex = Regex("Thanks for your Public Chat report. We understand your concerns and it will be reviewed as soon as possible.")
     private val chatRegex = Regex("\\[(\\d+)] ?(.+)? (.+): (.+)")
     private val lowballRegex = Regex("(?i)(l.?bing|l.?o.?w.?b.?a.?l.?l)")
     private var waitTime = 0
 
     private var reportQueue = mutableListOf<String>()
-    val ign = reportQueue.firstOrNull()
+    private fun ign(): String { return reportQueue.firstOrNull() ?: "null" }
     
     init {
         execute(50) {
             if (waitTime > 0) waitTime--
-            if (reportQueue.size >= 1 && waitTime <= 0 && ign != null) {
+
+            if (reportQueue.isNotEmpty() && waitTime == 0 && ign() != "null") {
+                runIn(6) { sendCommand("cr ${ign()}") }
+                if (!isHidden) subMessage("§d${reportingText.replace("#name", ign())}")
                 waitTime = reportCD * 20
-                if (!isHidden) subMessage("§d${reportingText.replace("#name", ign)}")
-                runIn(6) {
-                    sendCommand("cr $ign")
-                }
             }
         }
 
@@ -79,6 +79,7 @@ object AntiLowball : Module(
                 }
                 it.isCanceled = true
             }
+
             if (it.message.matches(rateLimitRegex)) {
                 if (!isHidden) subMessage("§c$failureText (Report failed: Wait a bit)")
                 waitTime = rateLimitCD * 20
@@ -86,8 +87,8 @@ object AntiLowball : Module(
             }
 
             if (it.message.matches(confirmedRegex)) {
-                if (!isHidden) subMessage("§z${confirmedText.replace("#name", ign ?: "???")}")
-                reportQueue.remove(reportQueue.firstOrNull())
+                if (!isHidden) subMessage("§z${confirmedText.replace("#name", ign())}")
+                reportQueue.remove(ign())
                 lowballersReported.value += 1
                 Config.save()
                 it.isCanceled = true
@@ -96,7 +97,14 @@ object AntiLowball : Module(
             if (it.message.matches(noRecentRegex)) {
                 if (!isHidden) subMessage("§c$failureText (Report failed: No Recent Messages.)")
                 waitTime = 20
-                reportQueue.remove(reportQueue.firstOrNull())
+                reportQueue.remove(ign())
+                it.isCanceled = true
+            }
+
+            if (it.message.matches(invalidIgnRegex)) {
+                if (!isHidden) subMessage("§c$failureText (Report failed: invalid ign \"${ign()}\". Please report this!)")
+                waitTime = 20
+                reportQueue.remove(ign())
                 it.isCanceled = true
             }
 

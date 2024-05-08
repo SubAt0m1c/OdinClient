@@ -32,11 +32,18 @@ val shadowImpl: Configuration by configurations.creating {
     configurations.implementation.get().extendsFrom(this)
 }
 
+val devEnv: Configuration by configurations.creating {
+    configurations.runtimeClasspath.get().extendsFrom(this)
+    isCanBeResolved = false
+    isCanBeConsumed = false
+    isVisible = false
+}
+
+
 dependencies {
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
-    modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.0")
     implementation(kotlin("stdlib-jdk8"))
 
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
@@ -44,6 +51,7 @@ dependencies {
 
     shadowImpl("gg.essential:loader-launchwrapper:1.1.3")
     compileOnly("gg.essential:essential-1.8.9-forge:12132+g6e2bf4dc5")
+    devEnv("me.djtheredstoner:DevAuth-forge-legacy:1.2.0")
 
     //api("com.mojang:brigadier:1.0.18")
 
