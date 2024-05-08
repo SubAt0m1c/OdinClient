@@ -120,6 +120,7 @@ object ModuleManager {
         OtherSettings,
         RatProtection,
         AntiLowball,
+        TntTag,
         PlayerDisplay,
         TerminalSimulator,
         PosMessages

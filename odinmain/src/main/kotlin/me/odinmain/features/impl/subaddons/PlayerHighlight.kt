@@ -6,6 +6,7 @@ import me.odinmain.events.impl.PostEntityMetadata
 import me.odinmain.events.impl.RenderEntityModelEvent
 import me.odinmain.features.Category
 import me.odinmain.features.Module
+import me.odinmain.features.impl.subaddons.SubUtils.inTNTTag
 import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.*
 import me.odinmain.utils.getPositionEyes
@@ -37,6 +38,7 @@ object PlayerHighlight : Module(
     //the way these tracers work without xray, it might actually still be legit according to SkyHanni. Not sure how but /shrug
     private val xray: Boolean by BooleanSetting("Through Walls", true).withDependency { !isLegitVersion }
     private val showinvis: Boolean by BooleanSetting("Show Invis", false).withDependency { !isLegitVersion }
+    private val disableintnt: Boolean by BooleanSetting("Disable in TNT tag", true, description = "Disables the highlight when playing tnt tag")
     private val advanced: Boolean by DropdownSetting("Show Settings", false)
     private val teamColor: Color by ColorSetting("Team Color", Color.CYAN, true).withDependency { advanced }
     private val oppColor: Color by ColorSetting("Opponent Color", Color.RED, true).withDependency { advanced }
@@ -77,13 +79,13 @@ object PlayerHighlight : Module(
 
     @SubscribeEvent
     fun onRenderEntityModel(event: RenderEntityModelEvent) {
-        if (mode != 0 || event.entity !in currentplayers || (!mc.thePlayer.canEntityBeSeen(event.entity) && !renderThrough)) return
+        if (mode != 0 || event.entity !in currentplayers || (!mc.thePlayer.canEntityBeSeen(event.entity) && !renderThrough) || (inTNTTag && disableintnt)) return
         if (!event.entity.isInvisible || showinvis) profile("Outline Esp") { OutlineUtils.outlineEntity(event, thickness, getDisplayColor(event.entity), false) }
     }
 
     @SubscribeEvent
     fun onRenderWorldLast(event: RenderWorldLastEvent) {
-        val tracerPlayers = currentplayers.filter { (renderThrough || (mc.thePlayer.canEntityBeSeen(it) && !isLegitVersion) ) && (!it.isInvisible || showinvis) }
+        val tracerPlayers = currentplayers.filter { (renderThrough || (mc.thePlayer.canEntityBeSeen(it) && !isLegitVersion) ) && (!it.isInvisible || showinvis) && (!inTNTTag || !disableintnt) }
         profile("tracers") {tracerPlayers.forEach {
             if (tracerPlayers.size < tracerLimit || tracerLimit == -1)
                 RenderUtils.draw3DLine(getPositionEyes(mc.thePlayer.renderVec), getPositionEyes(it.renderVec), getDisplayColor(it),
@@ -91,9 +93,9 @@ object PlayerHighlight : Module(
         }}
 
         profile("ESP") { currentplayers.forEach {
-            if (mode == 2 && (!it.isInvisible || showinvis))
+            if (mode == 2 && (!it.isInvisible || showinvis) && (!inTNTTag || !disableintnt))
                 Renderer.drawBox(it.entityBoundingBox, getDisplayColor(it), thickness, depth = !renderThrough, fillAlpha = 0)
-            else if (mode == 3 && (mc.thePlayer.canEntityBeSeen(it) || renderThrough) && (!it.isInvisible || showinvis))
+            else if (mode == 3 && (mc.thePlayer.canEntityBeSeen(it) || renderThrough) && (!it.isInvisible || showinvis) && (!inTNTTag || !disableintnt))
                 Renderer.draw2DEntity(it, thickness, getDisplayColor(it))
         }}
     }
@@ -111,7 +113,7 @@ object PlayerHighlight : Module(
     }
 
     private fun checkEntity(entity: Entity) {
-        if (!inSkyblock && entity.isPlayer() && entity != mc.thePlayer) currentplayers.add(entity)
+        if (!inSkyblock && entity.isPlayer() && entity != mc.thePlayer && (!inTNTTag || !disableintnt)) currentplayers.add(entity)
     }
 }
 

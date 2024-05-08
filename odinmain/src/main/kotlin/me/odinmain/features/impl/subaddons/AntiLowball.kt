@@ -8,9 +8,7 @@ import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.*
 import me.odinmain.font.OdinFont
 import me.odinmain.ui.hud.HudElement
-import me.odinmain.utils.render.Color
-import me.odinmain.utils.render.getTextWidth
-import me.odinmain.utils.render.text
+import me.odinmain.utils.render.*
 import me.odinmain.utils.runIn
 import me.odinmain.utils.skyblock.sendCommand
 
@@ -36,15 +34,15 @@ object AntiLowball : Module(
     private val inQueText: String by StringSetting("In Que Text", "#name is already in the que...", 128, description = "Message sent when a user is already in the que. '#name' will be replaced with their name").withDependency { statusText }
     private val hud: HudElement by HudSetting("Anti Lowballer hud", 10f, 10f, 1f, true) {
         if (it) {
-            text("§7AntiLB: §a59t  §7//  §c1 // §68", 1f, 9f, Color.RED, 12f, OdinFont.REGULAR, shadow = true)
-            getTextWidth("AntiLB: 59  //  1 //  8", 12f) + 2f to 16f
+            mcText("§7AntiLB: §a59t  §7//  §c1 // §68", 1f, 9f, 1, Color.RED, center = false)
+            getMCTextWidth("AntiLB: 59  //  1 //  8") + 2f to 16f
         } else {
             val hudText = if(hideHudText) { "§7AntiLB: " } else { "" }
             if (!alwaysShowCd && waitTime <= 0) return@HudSetting 0f to 0f
             val displayCD = String.format("%.2f", waitTime.toFloat() / 20)
 
-            text("$hudText§e${displayCD}s  §7//  §c${lowballersReported.value} §7//  §6${reportQueue.size}", 1f, 9f, Color.WHITE, 12f, OdinFont.REGULAR, shadow = true)
-            getTextWidth("AntiLB: 59  //  1 //  8", 12f) + 2f to 12f
+            mcText("$hudText§e${displayCD}s  §7//  §c${lowballersReported.value} §7//  §6${reportQueue.size}", 1f, 9f, 1, Color.WHITE, center = false)
+            getMCTextWidth("AntiLB: 59  //  1 //  8") + 2f to 12f
         }
     }
 
