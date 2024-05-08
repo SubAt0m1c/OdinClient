@@ -30,7 +30,7 @@ object AntiLowball : Module(
     private val statusText: Boolean by DropdownSetting("Status Text")
     private val reportingText: String by StringSetting("Reporting Text", "reporting #name...", 128, description = "Message sent when reporting a user. '#name' will be replaced with their name.").withDependency { statusText }
     private val confirmingText: String by StringSetting("Confirming Text", "Confirming report...", 128, description = "Message sent when confirming a report").withDependency { statusText }
-    private val confirmedText: String by StringSetting("Confirmed Text", "I hate lowballers", 128, description = "Message sent when a report is confirmed").withDependency { statusText }
+    private val confirmedText: String by StringSetting("Confirmed Text", "Lowballer #name down!", 128, description = "Message sent when a report is confirmed").withDependency { statusText }
     private val failureText: String by StringSetting("Failure Text", "Hypixel Hates fun", 128, description = "Message sent when a report has failed").withDependency { statusText }
     private val queAddText: String by StringSetting("Add Que Text", "Adding #name to que...", 128, description = "Message sent when a user is added to the que. '#name' will be replaced with their name").withDependency { statusText }
     private val inQueText: String by StringSetting("In Que Text", "#name is already in the que...", 128, description = "Message sent when a user is already in the que. '#name' will be replaced with their name").withDependency { statusText }
@@ -57,13 +57,13 @@ object AntiLowball : Module(
     private var waitTime = 0
 
     private var reportQueue = mutableListOf<String>()
+    val ign = reportQueue.firstOrNull()
     
     init {
         execute(50) {
             if (waitTime > 0) waitTime--
-            if (reportQueue.size >= 1 && waitTime <= 0) {
+            if (reportQueue.size >= 1 && waitTime <= 0 && ign != null) {
                 waitTime = reportCD * 20
-                val ign = reportQueue.firstOrNull() ?: return@execute subMessage("Report Que size Greater than one, but returned null.")
                 if (!isHidden) subMessage("§d${reportingText.replace("#name", ign)}")
                 runIn(6) {
                     sendCommand("cr $ign")
@@ -86,7 +86,7 @@ object AntiLowball : Module(
             }
 
             if (it.message.matches(confirmedRegex)) {
-                if (!isHidden) subMessage("§z$confirmedText (Report on ${reportQueue.firstOrNull()} confirmed!)")
+                if (!isHidden) subMessage("§z${confirmedText.replace("#name", ign ?: "???")}")
                 reportQueue.remove(reportQueue.firstOrNull())
                 lowballersReported.value += 1
                 Config.save()
@@ -100,15 +100,15 @@ object AntiLowball : Module(
                 it.isCanceled = true
             }
 
-            val ign = chatRegex.matchEntire(it.message)?.groups?.get(3)?.value ?: return@onMessageCancellable
+            val msgIGN = chatRegex.matchEntire(it.message)?.groups?.get(3)?.value ?: return@onMessageCancellable
             val msg = chatRegex.matchEntire(it.message)?.groups?.get(4)?.value ?: return@onMessageCancellable
 
             if (msg.contains(lowballRegex)) {
                 if (hidelowballers) { it.isCanceled = true }
-                if (ign == mc.thePlayer.name) return@onMessageCancellable subMessage("§c§lSTOP LOWBALLING, YOURE THE PROBLEM")
-                if (reportQueue.contains(ign) && informAdd) return@onMessageCancellable subMessage("§c${inQueText.replace("#name", ign)}")
-                if (informAdd) subMessage("§6${queAddText.replace("#name", ign)} (${reportQueue.size +1} players before them.)")
-                reportQueue.add(ign)
+                if (msgIGN == mc.thePlayer.name) return@onMessageCancellable subMessage("§c§lSTOP LOWBALLING, YOURE THE PROBLEM")
+                if (reportQueue.contains(msgIGN) && informAdd) return@onMessageCancellable subMessage("§c${inQueText.replace("#name", msgIGN)}")
+                if (informAdd) subMessage("§6${queAddText.replace("#name", msgIGN)} (${reportQueue.size +1} players before them.)")
+                reportQueue.add(msgIGN)
             }
         }
     }

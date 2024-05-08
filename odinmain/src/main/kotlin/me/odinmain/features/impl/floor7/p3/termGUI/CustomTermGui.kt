@@ -9,6 +9,7 @@ import me.odinmain.utils.render.isPointWithin
 import me.odinmain.utils.render.scale
 import me.odinmain.utils.render.translate
 import me.odinmain.utils.skyblock.PlayerUtils
+import me.odinmain.utils.skyblock.PlayerUtils.asyncClick
 import me.odinmain.utils.skyblock.PlayerUtils.windowClick
 import net.minecraft.client.gui.ScaledResolution
 
@@ -50,7 +51,7 @@ abstract class TermGui {
         itemIndexMap.entries.find {
             it.value.isPointWithin(x, y)
         }?.let {
-            windowClick(it.key, if (button == 0) PlayerUtils.ClickType.Middle else PlayerUtils.ClickType.Right)
+            asyncClick(it.key, if (button == 0) PlayerUtils.ClickType.Middle else PlayerUtils.ClickType.Right)
         }
     }
 

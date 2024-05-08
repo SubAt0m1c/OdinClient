@@ -132,4 +132,29 @@ object PlayerUtils {
             is ClickType.Shift -> windowClick(slotId, 0, 1)
         }
     }
+
+    /**
+     * This says async, but clicks are still sent on tick. Its only async to the other clicks.
+     * I'm not entirely sure why the other clicks are added to their own tick. It makes the clicks feel delayed. This is a temporary solution until Od fixes.
+     */
+    fun asyncClick(slotId: Int, clickType: ClickType) {
+        when (clickType) {
+            is ClickType.Left -> handleAsyncClick(slotId, 0, 0)
+            is ClickType.Right -> handleAsyncClick(slotId, 1, 0)
+            is ClickType.Middle -> handleAsyncClick(slotId, 2, 3)
+            is ClickType.Shift -> handleAsyncClick(slotId, 0, 1)
+        }
+    }
+
+    private fun handleAsyncClick(slotId: Int, button: Int, mode: Int) {
+        if (mc.currentScreen is TermSimGui) {
+            val gui = mc.currentScreen as TermSimGui
+            gui.delaySlotClick(gui.inventorySlots.getSlot(slotId), button)
+        } else {
+            mc.thePlayer.openContainer?.let {
+                if (it !is ContainerChest) return@let
+                mc.playerController.windowClick(it.windowId, slotId, button, mode, mc.thePlayer)
+            }
+        }
+    }
 }
