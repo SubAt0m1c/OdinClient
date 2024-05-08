@@ -25,6 +25,7 @@ repositories {
     mavenCentral()
     maven("https://repo.spongepowered.org/maven/")
     maven("https://repo.essential.gg/repository/maven-public/")
+    maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
 }
 
 val shadowImpl: Configuration by configurations.creating {
@@ -35,7 +36,7 @@ dependencies {
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
-
+    modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.0")
     implementation(kotlin("stdlib-jdk8"))
 
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
