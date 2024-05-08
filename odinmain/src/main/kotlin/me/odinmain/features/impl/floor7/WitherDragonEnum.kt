@@ -2,7 +2,6 @@ package me.odinmain.features.impl.floor7
 
 import me.odinmain.features.impl.floor7.DragonPriority.dragonPrioritySpawn
 import me.odinmain.features.impl.floor7.DragonPriority.findPriority
-import me.odinmain.features.impl.floor7.DragonPriority.sortPriority
 import me.odinmain.features.impl.floor7.WitherDragons.bluePB
 import me.odinmain.features.impl.floor7.WitherDragons.greenPB
 import me.odinmain.features.impl.floor7.WitherDragons.orangePB
@@ -15,9 +14,7 @@ import me.odinmain.utils.render.Color
 import me.odinmain.utils.skyblock.modMessage
 import net.minecraft.entity.Entity
 import net.minecraft.network.play.server.S2APacketParticles
-import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.EnumParticleTypes
-import net.minecraft.util.Vec3
+import net.minecraft.util.*
 
 enum class WitherDragonsEnum (
     val spawnPos: Vec3,
@@ -81,7 +78,7 @@ fun handleSpawnPacket(particle: S2APacketParticles) {
     val spawningDragons = WitherDragonsEnum.entries.filter { it.spawning }.toMutableList()
     if (spawningDragons.isEmpty()) return
     priorityDragon = findPriority(spawningDragons)
-    if (priorityDragon.particleSpawnTime in System.currentTimeMillis() - 100..System.currentTimeMillis() + 100) dragonPrioritySpawn(priorityDragon)
+    if (priorityDragon.particleSpawnTime in System.currentTimeMillis()-100..System.currentTimeMillis()+100) dragonPrioritySpawn(priorityDragon)
 }
 
 private fun checkParticle(event: S2APacketParticles, color: WitherDragonsEnum): Boolean {

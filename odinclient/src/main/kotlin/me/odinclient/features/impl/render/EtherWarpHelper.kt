@@ -10,10 +10,8 @@ import me.odinmain.features.impl.dungeon.DungeonWaypoints.toVec3
 import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.*
 import me.odinmain.ui.clickgui.util.ColorUtil.withAlpha
-import me.odinmain.utils.PositionLook
+import me.odinmain.utils.*
 import me.odinmain.utils.clock.Clock
-import me.odinmain.utils.equal
-import me.odinmain.utils.etherwarpRotateTo
 import me.odinmain.utils.render.Color
 import me.odinmain.utils.render.RenderUtils.renderVec
 import me.odinmain.utils.render.Renderer
@@ -21,7 +19,6 @@ import me.odinmain.utils.skyblock.*
 import me.odinmain.utils.skyblock.EtherWarpHelper
 import me.odinmain.utils.skyblock.EtherWarpHelper.etherPos
 import me.odinmain.utils.skyblock.dungeon.DungeonUtils
-import me.odinmain.utils.smoothRotateTo
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
 import net.minecraftforge.client.event.RenderWorldLastEvent
@@ -90,8 +87,8 @@ object EtherWarpHelper : Module(
             mc.thePlayer.isSneaking
         ) {
             val pos = etherPos.pos ?: return
-                mc.thePlayer.setPosition(pos.x + .5, pos.y + 1.0, pos.z + .5)
-                mc.thePlayer.setVelocity(.0, .0, .0)
+            mc.thePlayer.setPosition(pos.x + .5, pos.y + 1.0, pos.z + .5)
+            mc.thePlayer.setVelocity(.0, .0, .0)
         }
     }
 
