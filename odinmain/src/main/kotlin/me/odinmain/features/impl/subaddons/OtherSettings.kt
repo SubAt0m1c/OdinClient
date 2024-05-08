@@ -76,22 +76,22 @@ object OtherSettings : Module(
         event.isCanceled = true
     }
 
-    private val messages = listOf(
-        "[BOSS] The Watcher: Congratulations, you made it through the Entrance.",
-        "[BOSS] The Watcher: Ah, you've finally arrived.",
-        "[BOSS] The Watcher: Ah, we meet again...",
-        "[BOSS] The Watcher: So you made it this far... interesting.",
-        "[BOSS] The Watcher: You've managed to scratch and claw your way here, eh?",
-        "[BOSS] The Watcher: I'm starting to get tired of seeing you around here...",
-        "[BOSS] The Watcher: Oh.. hello?",
-        "[BOSS] The Watcher: Things feel a little more roomy now, eh?"
-    )
-
     init {
-        onMessage(Regex("\\[BOSS] The Watcher:(.*)")) {
-            if (it.equalsOneOf(messages) && sbeBloodFix) {
-                mc.thePlayer.addChatMessage(ChatComponentText("r§cThe §r§c§lBLOOD DOOR§r§c has been opened!"))
-                MinecraftForge.EVENT_BUS.post(ChatPacketEvent("r§cThe §r§c§lBLOOD DOOR§r§c has been opened!"))
+        if (sbeBloodFix) {
+            onMessage(Regex("\\[BOSS] The Watcher:(.*)")) {
+                if (it.equalsOneOf(
+                        "[BOSS] The Watcher: Congratulations, you made it through the Entrance.",
+                        "[BOSS] The Watcher: Ah, you've finally arrived.",
+                        "[BOSS] The Watcher: Ah, we meet again...",
+                        "[BOSS] The Watcher: So you made it this far... interesting.",
+                        "[BOSS] The Watcher: You've managed to scratch and claw your way here, eh?",
+                        "[BOSS] The Watcher: I'm starting to get tired of seeing you around here...",
+                        "[BOSS] The Watcher: Oh.. hello?",
+                        "[BOSS] The Watcher: Things feel a little more roomy now, eh?"
+                )) {
+                    mc.thePlayer.addChatMessage(ChatComponentText("§r§cThe §r§c§lBLOOD DOOR§r§c has been opened!"))
+                    MinecraftForge.EVENT_BUS.post(ChatPacketEvent("§r§cThe §r§c§lBLOOD DOOR§r§c has been opened!"))
+                }
             }
         }
 
