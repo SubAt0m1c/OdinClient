@@ -25,7 +25,7 @@ object MimicMessage : Module(
     fun onEntityDeath(event: LivingDeathEvent) {
         if (!DungeonUtils.inDungeons || event.entity !is EntityZombie || mimicKilled) return
         val entity = event.entity as EntityZombie
-        if (entity.isChild && entity.inventory.drop(1).all { it == null }) {
+        if (entity.isChild && (0..3).all { entity.getCurrentArmor(it) == null }) {
             mimicKilled = true
             partyMessage(mimicMessage)
         }

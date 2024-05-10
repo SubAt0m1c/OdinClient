@@ -123,7 +123,8 @@ object ModuleManager {
         TntTag,
         PlayerDisplay,
         TerminalSimulator,
-        PosMessages
+        PosMessages,
+        LockCursor
     )
 
     init {

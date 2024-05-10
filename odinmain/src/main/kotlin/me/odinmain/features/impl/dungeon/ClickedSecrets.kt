@@ -32,7 +32,7 @@ object ClickedSecrets : Module(
 
     @SubscribeEvent
     fun onRenderWorld(event: RenderWorldLastEvent) {
-        if (!DungeonUtils.inDungeons || secrets.isEmpty() || DungeonUtils.inBoss) return
+        if (!DungeonUtils.inDungeons || DungeonUtils.inBoss || secrets.isEmpty()) return
 
         val tempList = secrets.toList()
         tempList.forEach {
@@ -62,7 +62,7 @@ object ClickedSecrets : Module(
             secrets.add(Chest(pos, System.currentTimeMillis()))
 
             runIn(timeToStay.toInt() * 20) {
-                secrets.remove(secrets.first())
+                secrets.removeFirstOrNull()
             }
         }
     }
