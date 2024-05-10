@@ -41,7 +41,6 @@ object OtherSettings : Module(
     private val sbeBloodFix: Boolean by BooleanSetting("SBE Blood Fix", default = false, description = "Fixes sbe's blood camp helper")
     private val editqol: Boolean by BooleanSetting("Edit Mode QOL", false, description = "auto disabled edit mode on world load and stops it from being enabled outside of dungeons")
 
-
     fun color(): Color {
         val color: Color = when (colorPallet) {
             0 -> color
@@ -76,6 +75,21 @@ object OtherSettings : Module(
         event.isCanceled = true
     }
 
+    /**
+    val terminalMap = mutableMapOf<String, terminalPlayer>() // "player": {terminal: 0, device: 0, lever: 0}
+
+    data class terminalPlayer(var terminals: Int, var devices: Int, var devers: Int) {
+        fun increment(type: String) {
+            when (type) {
+                "terminal" -> terminals++
+                "device" -> devices++
+                "lever" -> devers++
+                else -> throw IllegalArgumentException("Invalid type: $type")
+            }
+        }
+    }
+    val terminalRegex = Regex("^(\\w{1,16}) (?:activated|completed) a (\\w+)! \\(\\d/\\d\\)$")
+    */
     init {
         if (sbeBloodFix) {
             onMessage(Regex("\\[BOSS] The Watcher:(.*)")) {
@@ -94,9 +108,34 @@ object OtherSettings : Module(
                 }
             }
         }
+        /**
+        onMessage(Regex("\\[BOSS] Goldor: Who dares trespass into my domain?")) {
+            dungeonTeammates.forEach{ player ->
+                terminalMap[player.name] = terminalPlayer(0,0,0)
+            }
+        }
+
+        onMessage(terminalRegex) {
+            val player = terminalRegex.matchEntire(it)?.groups?.get(1)?.value ?: return@onMessage
+            val type = terminalRegex.matchEntire(it)?.groups?.get(2)?.value ?: return@onMessage
+            val data = terminalMap[player]
+            data?.increment(type)
+        }
+
+        onMessage(Regex("The Core entrance is opening!")) {
+            val messageBuild = StringBuilder()
+            terminalMap.forEach { (player, data) ->
+                val formatted = dungeonTeammates.find { it.name == player }
+                messageBuild.append("\n§d$formatted §8| §6${data.terminals} §aTerminals §8| §6${data.devices} §aDevices §8| §6${data.devers} §aLevers")
+            }
+            if (messageBuild.isNotEmpty()) {
+                modMessage("§8Terminals: ${messageBuild.toString().trim()}")
+            }
+        } */
 
         onWorldLoad {
             if (editqol) allowEdits = false
+            //terminalMap.clear()
         }
 
     }

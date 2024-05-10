@@ -27,19 +27,15 @@ object PosMessages : Module(
     val posMessageStrings: MutableList<String> by ListSetting("Pos Messages Strings", mutableListOf())
     private val sentMessages = mutableMapOf<String, Boolean>()
 
+    private val atRegex = Regex("x: (.*), y: (.*), z: (.*), delay: (.*), distance: (.*), message: \"(.*)\"")
+    private val inRegex = Regex("x: (.*), y: (.*), z: (.*), x2: (.*), y2: (.*), z2: (.*), delay: (.*), message: \"(.*)\"")
 
     @SubscribeEvent
     fun posMessageSend(event: PacketSentEvent) {
         if (event.packet !is C04PacketPlayerPosition || (onlyDungeons && !DungeonUtils.inDungeons) || !LocationUtils.inSkyblock) return
         posMessageStrings.forEach {
-            findParser(it)
+            if (it.matches(atRegex)) handleAtString(it) else handleInString(it)
         }
-    }
-
-    private fun findParser(posMessageString: String) {
-        val atRegex = Regex("x: (.*), y: (.*), z: (.*), delay: (.*), distance: (.*), message: \"(.*)\"")
-        val inRegex = Regex("x: (.*), y: (.*), z: (.*), x2: (.*), y2: (.*), z2: (.*), delay: (.*), message: \"(.*)\"")
-        if (posMessageString.matches(atRegex)) handleAtString(posMessageString) else handleInString(posMessageString)
     }
 
     private fun handleAtString(posMessageString: String) {
@@ -68,8 +64,7 @@ object PosMessages : Module(
     }
 
     private fun parseAtString(posMessageString: String): PosMessage? {
-        val regex = Regex("x: (.*), y: (.*), z: (.*), delay: (.*), distance: (.*), message: \"(.*)\"")
-        val matchResult = regex.matchEntire(posMessageString) ?: return null
+        val matchResult = atRegex.matchEntire(posMessageString) ?: return null
         val (x, y, z, delay, distance, message) = matchResult.destructured
         val xDouble = x.toDoubleOrNull() ?: return null.also { modMessage("Failed to parse x: $x") }
         val yDouble = y.toDoubleOrNull() ?: return null.also { modMessage("Failed to parse y: $y") }
@@ -80,7 +75,6 @@ object PosMessages : Module(
     }
 
     private fun parseInString(posMessageString: String): PosMessage? {
-        val inRegex = Regex("x: (.*), y: (.*), z: (.*), x2: (.*), y2: (.*), z2: (.*), delay: (.*), message: \"(.*)\"")
         val matchResult = inRegex.matchEntire(posMessageString) ?: return null
         val (x, y, z, x2, y2, z2, delay, message) = matchResult.destructured
         val xDouble = x.toDoubleOrNull() ?: return null.also { modMessage("Failed to parse x: $x") }
