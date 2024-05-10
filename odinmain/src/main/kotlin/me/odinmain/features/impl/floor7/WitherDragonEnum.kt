@@ -2,12 +2,12 @@ package me.odinmain.features.impl.floor7
 
 import me.odinmain.features.impl.floor7.DragonPriority.dragonPrioritySpawn
 import me.odinmain.features.impl.floor7.DragonPriority.findPriority
-import me.odinmain.features.impl.floor7.WitherDragons.bluePB
-import me.odinmain.features.impl.floor7.WitherDragons.greenPB
-import me.odinmain.features.impl.floor7.WitherDragons.orangePB
+import me.odinmain.features.impl.floor7.WitherDragons.bluedragPB
+import me.odinmain.features.impl.floor7.WitherDragons.greendragPB
+import me.odinmain.features.impl.floor7.WitherDragons.orangedragPB
 import me.odinmain.features.impl.floor7.WitherDragons.priorityDragon
-import me.odinmain.features.impl.floor7.WitherDragons.purplePB
-import me.odinmain.features.impl.floor7.WitherDragons.redPB
+import me.odinmain.features.impl.floor7.WitherDragons.purpledragPB
+import me.odinmain.features.impl.floor7.WitherDragons.reddragPB
 import me.odinmain.features.impl.floor7.WitherDragons.sendSpawning
 import me.odinmain.features.settings.impl.NumberSetting
 import me.odinmain.utils.render.Color
@@ -35,19 +35,19 @@ enum class WitherDragonsEnum (
 ) {
 
     Red(Vec3(27.0, 14.0, 59.0), AxisAlignedBB(14.5, 13.0, 45.5, 39.5, 28.0, 70.5),"c", Color.RED,
-        24.0..30.0, 56.0..62.0, redPB, skipKillTime = 2500),
+        24.0..30.0, 56.0..62.0, reddragPB, skipKillTime = 2500),
 
     Orange(Vec3(85.0, 14.0, 56.0), AxisAlignedBB(72.0, 8.0,  47.0, 102.0,28.0, 77.0),"6", Color.ORANGE,
-        82.0..88.0, 53.0..59.0, orangePB, skipKillTime = 3080),
+        82.0..88.0, 53.0..59.0, orangedragPB, skipKillTime = 3080),
 
     Green(Vec3(27.0, 14.0, 94.0), AxisAlignedBB(7.0,  8.0,  80.0, 37.0, 28.0, 110.0),"a", Color.GREEN,
-        23.0..29.0, 91.0..97.0,  greenPB, skipKillTime = 2600),
+        23.0..29.0, 91.0..97.0,  greendragPB, skipKillTime = 2600),
 
     Blue(Vec3(84.0, 14.0, 94.0), AxisAlignedBB(71.5, 16.0, 82.5, 96.5, 26.0, 107.5),"b", Color.BLUE,
-        82.0..88.0, 91.0..97.0,  bluePB, skipKillTime = 1920),
+        82.0..88.0, 91.0..97.0,  bluedragPB, skipKillTime = 1920),
 
     Purple(Vec3(56.0, 14.0, 125.0),  AxisAlignedBB(45.5, 13.0, 113.5,68.5, 23.0, 136.5),"5", Color.PURPLE,
-        53.0..59.0, 122.0..128.0,  purplePB, skipKillTime = 1900);
+        53.0..59.0, 122.0..128.0,  purpledragPB, skipKillTime = 1900);
 
     fun spawnTime(): Long {
         return 5000L - (System.currentTimeMillis() - this.particleSpawnTime)

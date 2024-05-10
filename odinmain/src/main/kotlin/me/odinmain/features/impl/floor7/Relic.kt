@@ -15,11 +15,11 @@ import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 
 object Relic {
-    private val greenPB = +NumberSetting("Green PB", 999.0, increment = 0.001, hidden = true)
-    private val purplePB = +NumberSetting("Purple PB", 999.0, increment = 0.001, hidden = true)
-    private val bluePB = +NumberSetting("Blue PB", 999.0, increment = 0.001, hidden = true)
-    private val orangePB = +NumberSetting("Orange PB", 999.0, increment = 0.001, hidden = true)
-    private val redPB = +NumberSetting("Red PB", 999.0, increment = 0.001, hidden = true)
+    private val greenrelicPB = +NumberSetting("Green Relic PB", 999.0, increment = 0.001, hidden = true)
+    private val purplerelicPB = +NumberSetting("Purple Relic PB", 999.0, increment = 0.001, hidden = true)
+    private val bluerelicPB = +NumberSetting("Blue Relic PB", 999.0, increment = 0.001, hidden = true)
+    private val orangerelicPB = +NumberSetting("Orange Relic PB", 999.0, increment = 0.001, hidden = true)
+    private val redrelicPB = +NumberSetting("Red Relic PB", 999.0, increment = 0.001, hidden = true)
 
     val currentRelic get() = mc.thePlayer?.heldItem?.itemID ?: ""
 
@@ -29,11 +29,11 @@ object Relic {
         val pbTime: NumberSetting<Double>,
         val colorCode: String
     ) {
-        Green("GREEN_KING_RELIC", greenPB, "§a"),
-        Purple("PURPLE_KING_RELIC", purplePB, "§5"),
-        Blue("BLUE_KING_RELIC", bluePB, "§b"),
-        Orange("ORANGE_KING_RELIC", orangePB, "§6"),
-        Red("RED_KING_RELIC", redPB, "§c")
+        Green("GREEN_KING_RELIC", greenrelicPB, "§a"),
+        Purple("PURPLE_KING_RELIC", purplerelicPB, "§5"),
+        Blue("BLUE_KING_RELIC", bluerelicPB, "§b"),
+        Orange("ORANGE_KING_RELIC", orangerelicPB, "§6"),
+        Red("RED_KING_RELIC", redrelicPB, "§c")
     }
 
     private var timer = 0L

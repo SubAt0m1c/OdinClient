@@ -94,11 +94,11 @@ object WitherDragons : Module(
     val selected: Int by SelectorSetting("Color", "Green", colors, description = "The color of your relic.").withDependency { relicAnnounce && relics}
     val relicAnnounceTime: Boolean by BooleanSetting("Relic Time", true, description = "Sends how long it took you to get that relic").withDependency { relics }
 
-    val redPB = +NumberSetting("Panes PB", 1000.0, increment = 0.01, hidden = true)
-    val orangePB = +NumberSetting("Color PB", 1000.0, increment = 0.01, hidden = true)
-    val greenPB = +NumberSetting("Numbers PB", 1000.0, increment = 0.01, hidden = true)
-    val bluePB = +NumberSetting("Melody PB", 1000.0, increment = 0.01, hidden = true)
-    val purplePB = +NumberSetting("Starts With PB", 1000.0, increment = 0.01, hidden = true)
+    val reddragPB = +NumberSetting("Red Dragon PB", 1000.0, increment = 0.01, hidden = true)
+    val orangedragPB = +NumberSetting("Orange Dragon PB", 1000.0, increment = 0.01, hidden = true)
+    val greendragPB = +NumberSetting("Green Dragon PB", 1000.0, increment = 0.01, hidden = true)
+    val bluedragPB = +NumberSetting("Blue Dragon PB", 1000.0, increment = 0.01, hidden = true)
+    val purpledragPB = +NumberSetting("Purple Dragon PB", 1000.0, increment = 0.01, hidden = true)
 
     lateinit var priorityDragon: WitherDragonsEnum
 

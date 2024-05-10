@@ -64,7 +64,7 @@ object DragonCheck {
             // ToDo: Fix pbs not saving at all
             val oldPB = dragon.dragonKillPBs.value
             val killTime = event.entity.ticksExisted / 20.0
-            if (dragon.dragonKillPBs.value < event.entity.ticksExisted / 20.0) dragon.dragonKillPBs.value = killTime
+            if (oldPB < event.entity.ticksExisted / 20.0) dragon.dragonKillPBs.value = killTime
             Config.save()
             modMessage("§${dragon.colorCode}${dragon.name} §fdragon was alive for ${printSecondsWithColor(killTime, 3.5, 7.5, down = false)}${if (killTime < oldPB) " §7(§dNew PB§7)" else ""}.")
         }
