@@ -26,6 +26,14 @@ For an organized feature list check the website [here](https://odtheking.github.
 <h1 align = "center">
 	SubAddons
 </h1>
+
+</h1>
+
+<div align="center">
+
+[![Downloads](https://img.shields.io/github/downloads/SubAt0m1c/OdinClient/total?style=for-the-badge)](https://github.com/SubAt0m1c/OdinClient/tree/SubAddons)
+</div>
+
 SubAddons is a fork of odin including various features unable to go into normal odin. SubAddons attempts to provide updated nightly releases of odin in their most stable state, resulting in less frequent updates but a greater gurantee in quality than that of official odin nightly builds.
 If you do not know how to install, and are not in the discord, I will not be providing instruction. Access to the discord is private, however releases are not. 
 
