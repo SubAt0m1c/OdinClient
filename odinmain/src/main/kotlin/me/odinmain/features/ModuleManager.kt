@@ -10,6 +10,7 @@ import me.odinmain.features.impl.kuudra.*
 import me.odinmain.features.impl.render.*
 import me.odinmain.features.impl.render.ClickGUIModule.hudChat
 import me.odinmain.features.impl.skyblock.*
+import me.odinmain.features.impl.subaddons.*
 import me.odinmain.features.settings.impl.KeybindSetting
 import me.odinmain.ui.hud.EditHUDGui
 import me.odinmain.ui.hud.HudElement
@@ -71,6 +72,9 @@ object ModuleManager {
         // kuudra
         BuildHelper, FreshTimer, KuudraDisplay, NoPre, PearlWaypoints, RemovePerks, SupplyWaypoints, TeamHighlight,
         VanqNotifier, KuudraReminders, KuudraSplits, KuudraRequeue,
+
+        // subaddoms
+        AntiLowball, OtherSettings, PlayerHighlight, RatProtection, TntTag
     )
 
     init {
