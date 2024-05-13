@@ -2,7 +2,6 @@ package me.odinmain.features.impl.floor7
 
 import me.odinmain.OdinMain.mc
 import me.odinmain.config.Config
-import me.odinmain.events.impl.EntityLeaveWorldEvent
 import me.odinmain.features.impl.floor7.WitherDragons.arrowDeath
 import me.odinmain.features.impl.floor7.WitherDragons.arrowSpawn
 import me.odinmain.features.impl.floor7.WitherDragons.sendArrowHit
@@ -14,17 +13,12 @@ import me.odinmain.features.impl.skyblock.ArrowHit.onDragonSpawn
 import me.odinmain.features.impl.skyblock.ArrowHit.resetOnDragons
 import me.odinmain.utils.equalsOneOf
 import me.odinmain.utils.isVecInXZ
-import me.odinmain.utils.pos
-import me.odinmain.utils.skyblock.devMessage
 import me.odinmain.utils.skyblock.modMessage
-import net.minecraft.entity.Entity
 import net.minecraft.entity.boss.EntityDragon
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.init.Blocks
 import net.minecraft.item.Item
 import net.minecraft.network.play.server.S04PacketEntityEquipment
-import net.minecraft.network.play.server.S29PacketSoundEffect
-import net.minecraft.util.Vec3
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.living.LivingDeathEvent
 
@@ -43,9 +37,9 @@ object DragonCheck {
         dragon.spawnedTime = System.currentTimeMillis()
         dragon.isSprayed = false
 
-        if (sendArrowHit) arrowSpawn(dragon)
-        if (resetOnDragons) onDragonSpawn()
-        if (sendSpawned) {
+        if (sendArrowHit && WitherDragons.enabled) arrowSpawn(dragon)
+        if (resetOnDragons && WitherDragons.enabled) onDragonSpawn()
+        if (sendSpawned && WitherDragons.enabled) {
             val numberSuffix = when (dragon.timesSpawned) {
                 1 -> "st"
                 2 -> "nd"
@@ -57,19 +51,18 @@ object DragonCheck {
     }
 
     fun dragonLeaveWorld(event: LivingDeathEvent) {
-        if (event.entity.name != "Ender Dragon") return
+        if (event.entity !is EntityDragon) return
+        val dragon = WitherDragonsEnum.entries.find {it.entity?.entityId == event.entity.entityId} ?: return
 
-        val dragon = WitherDragonsEnum.entries.find {it.entity == event.entity} ?: return
-        if (sendTime) {
-            // ToDo: Fix pbs not saving at all
+        if (sendTime && WitherDragons.enabled) {
             val oldPB = dragon.dragonKillPBs.value
             val killTime = event.entity.ticksExisted / 20.0
-            if (oldPB < event.entity.ticksExisted / 20.0) dragon.dragonKillPBs.value = killTime
+            if (dragon.dragonKillPBs.value < event.entity.ticksExisted / 20.0) dragon.dragonKillPBs.value = killTime
             Config.save()
             modMessage("§${dragon.colorCode}${dragon.name} §fdragon was alive for ${printSecondsWithColor(killTime, 3.5, 7.5, down = false)}${if (killTime < oldPB) " §7(§dNew PB§7)" else ""}.")
         }
 
-        if (sendArrowHit) arrowDeath(dragon)
+        if (sendArrowHit && WitherDragons.enabled) arrowDeath(dragon)
         lastDragonDeath = dragon.name
     }
 
@@ -77,7 +70,6 @@ object DragonCheck {
         if (packet.itemStack?.item != Item.getItemFromBlock(Blocks.packed_ice)) return
 
         val sprayedEntity = mc.theWorld.getEntityByID(packet.entityID) as? EntityArmorStand ?: return
-
 
         WitherDragonsEnum.entries.forEach {
             if (it.entity?.isEntityAlive == true) {
@@ -91,16 +83,6 @@ object DragonCheck {
         }
     }
 
-    fun dragonDeathSound(packet: S29PacketSoundEffect) {
-        val loc: Vec3 = packet.pos
-
-        devMessage(packet.soundName)
-        WitherDragonsEnum.entries.forEach {
-            val distance = it.entity?.getDistance(loc.xCoord, loc.yCoord, loc.zCoord)
-            devMessage("Sound effect is $distance from ${it.colorCode}${it.name} dragon")
-        }
-    }
-
     fun onChatPacket(message: String) {
         if (
             !message.equalsOneOf(
@@ -110,14 +92,8 @@ object DragonCheck {
             )
         ) return
 
-        if (lastDragonDeath == "") return
         val dragon = WitherDragonsEnum.entries.find { lastDragonDeath == it.name } ?: return
-        lastDragonDeath = ""
-        if (sendNotification) modMessage("§${dragon.colorCode}${dragon.name} dragon counts.")
-    }
-
-    private fun Vec3.dragonCheck(vec3: Vec3): Boolean {
-        return this.xCoord == vec3.xCoord && this.yCoord == vec3.yCoord && this.zCoord == vec3.zCoord
+        if (sendNotification && WitherDragons.enabled) modMessage("§${dragon.colorCode}${dragon.name} dragon counts.")
     }
 
     private fun printSecondsWithColor(time1: Double, time2: Double, time3: Double, down: Boolean = true, colorCode1: String = "a", colorCode2: String = "6", colorCode3: String = "c"): String {
