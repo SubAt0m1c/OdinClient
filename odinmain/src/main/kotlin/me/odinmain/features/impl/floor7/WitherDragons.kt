@@ -3,7 +3,6 @@ package me.odinmain.features.impl.floor7
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.impl.floor7.DragonBoxes.renderBoxes
-import me.odinmain.features.impl.floor7.DragonCheck.dragonDeathSound
 import me.odinmain.features.impl.floor7.DragonCheck.dragonJoinWorld
 import me.odinmain.features.impl.floor7.DragonCheck.dragonLeaveWorld
 import me.odinmain.features.impl.floor7.DragonCheck.dragonSprayed
@@ -126,10 +125,6 @@ object WitherDragons : Module(
         onPacket(S29PacketSoundEffect::class.java, { DungeonUtils.getPhase() == Island.M7P5 }) {
             if (it.soundName != "random.successful_hit" || !sendArrowHit || !::priorityDragon.isInitialized) return@onPacket
             if (priorityDragon.entity?.isEntityAlive == true && System.currentTimeMillis() - priorityDragon.spawnedTime < priorityDragon.skipKillTime) arrowsHit++
-        }
-
-        onPacket(S29PacketSoundEffect::class.java, { DungeonUtils.getPhase() == Island.M7P5 }) {
-            if (it.soundName == "mob.enderdragon.end") dragonDeathSound(it)
         }
 
         onPacket(S04PacketEntityEquipment::class.java, { DungeonUtils.getPhase() == Island.M7P5 }) {
