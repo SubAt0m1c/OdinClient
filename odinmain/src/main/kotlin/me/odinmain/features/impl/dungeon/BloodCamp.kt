@@ -150,8 +150,7 @@ object BloodCamp : Module(
 
             forRender[entity]?.lastEndVector = forRender[entity]?.endVector
 
-            if (entity !in forRender)
-                forRender[entity] = RenderEData(startVector = startVector)
+            if (entity !in forRender) forRender[entity] = RenderEData(startVector = startVector)
 
             forRender[entity].let {
                 it?.currVector = currVector
