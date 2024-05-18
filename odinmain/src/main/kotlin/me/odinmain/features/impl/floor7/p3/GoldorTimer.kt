@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 object GoldorTimer : Module(
     name = "Goldor Timer",
     category = Category.FLOOR7,
-    description = "Tick Timer for when goldor kills players"
+    description = "Displays the time until the Goldor fight starts in floor 7."
 ) {
     private val startTimer: Boolean by BooleanSetting("Start Timer", default = true, description = "5 second countdown until terms/devices are able to be completed")
     private val displayInTicks: Boolean by DualSetting("Display in Ticks", default = false, left = "Seconds", right = "Ticks", description = "Displays the timer in game ticks rather than ms")
