@@ -1,5 +1,6 @@
 package me.odinmain.features.impl.subaddons
 
+import me.odinmain.OdinMain
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.drawEntityFace
@@ -35,27 +36,27 @@ object TargetHud : Module(
     private val outline: Boolean by BooleanSetting("Outline", true)
     private val hud: HudElement by HudSetting("Display", 10f, 10f, 2f, false) {
         val targetEntity = target?.entity
-        if (target == null || targetEntity?.isEntityAlive == false || targetEntity?.isInvisible == true) return@HudSetting 0f to 0f
-        val entity = if (target?.entityLiving != null) target?.entityLiving else target?.playerEntity
+        if (target != null && targetEntity?.isInvisible == false) {
+            if (targetEntity is EntityPlayer && target?.isPlayer == false) return@HudSetting 0f to 0f
 
-        if (entity is EntityPlayer && target?.isPlayer == false) return@HudSetting 0f to 0f
+            if (outline) {
+                roundedRectangle(-2f, -2f, 54f, 42f, outlinecolor, outlinecolor, outlinecolor, 0f , 9f, 0f, 9f, 0f, 0f)
+                roundedRectangle(52f, -2f, 50f, 42f, outlinecolor, outlinecolor, outlinecolor, 0f , 0f, 9f, 0f, 9f, 0f)
+            }
 
-        if (outline) {
-            roundedRectangle(-2f, -2f, 54f, 42f, outlinecolor, outlinecolor, outlinecolor, 0f , 9f, 0f, 9f, 0f, 0f)
-            roundedRectangle(52f, -2f, 50f, 42f, outlinecolor, outlinecolor, outlinecolor, 0f , 0f, 9f, 0f, 9f, 0f)
-        }
+            roundedRectangle(0f, 0f, 50f, 38f, color, color, color, 0f , 9f, 0f, 9f, 0f, 0f)
+            roundedRectangle(49.9f, 0f, 50f, 38f, color, color, color, 0f , 0f, 9f, 0f, 9f, 0f) //Why does it need to be 49.9???
 
-        roundedRectangle(0f, 0f, 50f, 38f, color, color, color, 0f , 9f, 0f, 9f, 0f, 0f)
-        roundedRectangle(49.9f, 0f, 50f, 38f, color, color, color, 0f , 0f, 9f, 0f, 9f, 0f) //Why does it need to be 49.9???
-
-        if (targetEntity != null) drawEntityFace(targetEntity, 8, 13,)
-        mcText(target?.entity?.displayName?.unformattedText ?: "???", 25f, 5f, 1, Color.BLUE, center = false)
-        if (targetEntity != null) mcText(healthData(targetEntity), 25f, 15f, 1, Color.WHITE, center = false)
-        if (targetEntity != null) mcText(statusData(targetEntity), 25f, 25f, 1, Color.WHITE, center = false)
+            drawEntityFace(targetEntity, 8, 13,)
+            mcText(target?.entity?.displayName?.unformattedText ?: "???", 25f, 5f, 1, Color.BLUE, center = false)
+            mcText(healthString(targetEntity), 25f, 15f, 1, Color.WHITE, center = false)
+            mcText(statusString(targetEntity), 25f, 25f, 1, Color.WHITE, center = false)
+        } else return@HudSetting 0f to 0f
         50f to 38f
     }
 
-    val targetCD = Clock(3_000)
+    private val targetCD = Clock(3_000)
+    private val triggerRegex = Regex("^(\\w{1,16}) is on (\\d*\\.?\\d*) HP!\$")
 
     var target: targetEntity? = null
     data class targetEntity(
@@ -106,7 +107,7 @@ object TargetHud : Module(
         )
     }
 
-    private fun healthData(entity: Entity): String {
+    private fun healthString(entity: Entity): String {
         val health = entity.health()
         val maxHealth = entity.maxHealth()
 
@@ -120,15 +121,15 @@ object TargetHud : Module(
         return "$colorHealth§r/§4${maxHealth} §cHP"
     }
 
-    private fun statusData(entity: Entity): String {
+    private fun statusString(entity: Entity): String {
+        if (entity.isDead) return "§cDEAD"
         val returnString = StringBuilder()
         if (mc.thePlayer.canEntityBeSeen(entity) && entity is EntityPlayer) {
             if (entity.isBurning) returnString.append("§cFIRE ")
             if (entity.isBlocking) returnString.append("§eBLOCK ")
-            if (entity.isEating && (entity.heldItem.item ?: returnString.append("")) is ItemAppleGold && entity.heldItem.item != null) returnString.append("§6GAP ")
+            if (entity.isEating && entity.heldItem.item != null && entity.heldItem.item is ItemAppleGold && entity.heldItem.item != null) returnString.append("§6GAP ")
             //if ((entity.itemInUse.item ?: returnString.append("")) is ItemBow) returnString.append("§fBOW ")
-        } else if (!mc.thePlayer.canEntityBeSeen(entity) && entity is EntityPlayer) return "§6NO SIGHTLINE"
-        if (entity.isDead) return "§cDEAD"
+        } else if (!mc.thePlayer.canEntityBeSeen(entity) && entity is EntityPlayer) return "§6NO SIGHT LINE"
         return returnString.toString()
     }
 
@@ -141,5 +142,14 @@ object TargetHud : Module(
         execute(50) {
             if (targetCD.hasTimePassed()) target = null
         }
+
+        onMessage(triggerRegex) {
+            val (player, _) = triggerRegex.matchEntire(it)?.destructured ?: return@onMessage
+            mc.theWorld.getPlayerEntityByName(player).let { name ->
+                target = targetEntity(name, name.isPlayer(), null, name)
+                targetCD.update()
+            }
+        }
+
     }
 }
