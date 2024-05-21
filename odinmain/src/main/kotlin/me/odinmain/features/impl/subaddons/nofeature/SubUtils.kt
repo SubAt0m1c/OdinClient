@@ -59,7 +59,7 @@ object SubUtils {
         var maxHealth: Float = 0f
         if (entity is EntityPlayer) {
             mc.thePlayer.worldScoreboard.scoreObjectives.forEach { score ->
-                val healthData = score.scoreboard.scores.find { it.playerName == entity.name }?.scorePoints?.toFloat()!!
+                val healthData = score.scoreboard.scores.find { it.playerName == entity.name }?.scorePoints?.toFloat() ?: 0f
                 if (EntityHealthData[entity.name]?.first == healthData) return else health = healthData
             }
             maxHealth = 20f
