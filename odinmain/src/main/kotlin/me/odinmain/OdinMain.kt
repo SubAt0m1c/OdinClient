@@ -7,6 +7,7 @@ import me.odinmain.config.*
 import me.odinmain.events.EventDispatcher
 import me.odinmain.features.ModuleManager
 import me.odinmain.features.impl.render.*
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils
 import me.odinmain.font.OdinFont
 import me.odinmain.ui.clickgui.ClickGUI
 import me.odinmain.ui.util.shader.RoundedRect
@@ -59,6 +60,7 @@ object OdinMain {
             Renderer,
             DungeonUtils,
             KuudraUtils,
+            SubUtils,
             EventDispatcher,
             Executor,
             ModuleManager,

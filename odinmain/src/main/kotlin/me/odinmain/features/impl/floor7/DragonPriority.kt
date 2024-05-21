@@ -53,12 +53,12 @@ object DragonPriority {
             else if ((playerClass == Classes.Healer && spawningDragon.any { it == WitherDragonsEnum.Purple }) || soloDebuffOnAll)
                 spawningDragon.sortByDescending { priorityList.indexOf(it) }
         }
-        devMessage("§7 power: $totalPower")
+        /**devMessage("§7 power: $totalPower")
         devMessage("§7 class: $playerClass")
         devMessage("§7 priority: ${(spawningDragon[0].name)}, ${spawningDragon[1].name}")
         devMessage("§7 priorityList: ${priorityList.joinToString(", ") { it.name }}")
         devMessage("is total power >= normal power? ${totalPower >= normalPower}")
-        devMessage("is total power >= easy power? ${totalPower >= easyPower}")
+        devMessage("is total power >= easy power? ${totalPower >= easyPower}")*/
         return spawningDragon[0]
     }
 }

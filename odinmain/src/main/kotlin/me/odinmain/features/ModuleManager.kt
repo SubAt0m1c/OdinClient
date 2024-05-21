@@ -53,7 +53,7 @@ object ModuleManager {
         // dungeon
         DungeonRequeue, BlessingDisplay, ExtraStats, KeyHighlight, Mimic, TeammatesHighlight,
         TerracottaTimer, BloodCamp, ClickedSecrets, DungeonWaypoints, SecretChime, LeapMenu, PuzzleSolvers,
-        WarpCooldown, 
+        WarpCooldown,
 
         // floor 7
         TerminalSolver, TerminalTimes, MelodyMessage, NecronDropTimer, InactiveWaypoints, WitherDragons,
@@ -74,7 +74,7 @@ object ModuleManager {
         VanqNotifier, KuudraReminders, KuudraSplits, KuudraRequeue,
 
         // subaddoms
-        AntiLowball, OtherSettings, PlayerHighlight, RatProtection, TntTag
+        AntiLowball, OtherSettings, PlayerHighlight, RatProtection, TntTag, TargetHud
     )
 
     init {

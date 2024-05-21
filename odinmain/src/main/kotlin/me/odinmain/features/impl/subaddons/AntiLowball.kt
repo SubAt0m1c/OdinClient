@@ -3,10 +3,9 @@ package me.odinmain.features.impl.subaddons
 import me.odinmain.config.Config
 import me.odinmain.features.Category
 import me.odinmain.features.Module
-import me.odinmain.features.impl.subaddons.SubUtils.subMessage
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.subMessage
 import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.*
-import me.odinmain.font.OdinFont
 import me.odinmain.ui.hud.HudElement
 import me.odinmain.utils.render.*
 import me.odinmain.utils.runIn

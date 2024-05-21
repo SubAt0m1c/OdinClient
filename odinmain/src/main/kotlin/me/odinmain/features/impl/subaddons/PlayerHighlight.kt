@@ -6,18 +6,18 @@ import me.odinmain.events.impl.PostEntityMetadata
 import me.odinmain.events.impl.RenderEntityModelEvent
 import me.odinmain.features.Category
 import me.odinmain.features.Module
-import me.odinmain.features.impl.subaddons.SubUtils.inTNTTag
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.inTNTTag
 import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.*
 import me.odinmain.utils.getPositionEyes
 import me.odinmain.utils.profile
 import me.odinmain.utils.render.RenderUtils.renderVec
 import me.odinmain.utils.skyblock.LocationUtils.inSkyblock
-import me.odinmain.features.impl.subaddons.SubUtils.isOnTeam
-import me.odinmain.features.impl.subaddons.SubUtils.isPlayer
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isOnTeam
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isPlayer
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
 import me.odinmain.utils.render.*
-import me.odinmain.utils.render.HighlightRenderer.highlightModeDefault
-import me.odinmain.utils.render.HighlightRenderer.highlightModeList
 import net.minecraft.entity.Entity
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -38,6 +38,7 @@ object PlayerHighlight : Module(
     //the way these tracers work without xray, it might actually still be legit according to SkyHanni. Not sure how but /shrug
     private val xray: Boolean by BooleanSetting("Through Walls", true).withDependency { !isLegitVersion }
     private val showinvis: Boolean by BooleanSetting("Show Invis", false).withDependency { !isLegitVersion }
+    private val colorHealth: Boolean by BooleanSetting("Color by Health", true)
     private val disableintnt: Boolean by BooleanSetting("Disable in TNT tag", true, description = "Disables the highlight when playing tnt tag")
     private val advanced: Boolean by DropdownSetting("Show Settings", false)
     private val teamColor: Color by ColorSetting("Team Color", Color.CYAN, true).withDependency { advanced }
@@ -49,13 +50,17 @@ object PlayerHighlight : Module(
     private var currentplayers = mutableSetOf<Entity>()
 
     private fun getDisplayColor(entity: Entity): Color {
-        val displayColor = when {
+        if (!colorHealth) return when {
+            entity.health() == entity.maxHealth() -> Color.DARK_GREEN
+            entity.health() >= (entity.maxHealth() * 0.75) -> Color.GREEN
+            entity.health() >= (entity.maxHealth() * 0.25) -> Color.ORANGE
+            else -> Color.RED
+        } else return when {
             entity.isInvisible && !showinvis -> Color.TRANSPARENT
             !entity.isOnTeam()-> oppColor
             entity.isOnTeam() -> teamColor
             else -> color
         }
-        return displayColor
     }
 
     init {
