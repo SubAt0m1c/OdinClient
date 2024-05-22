@@ -1,12 +1,12 @@
 package me.odinmain.features.impl.subaddons
 
-import me.odinmain.OdinMain
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.drawEntityFace
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isPlayer
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
+import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.BooleanSetting
 import me.odinmain.features.settings.impl.ColorSetting
 import me.odinmain.features.settings.impl.HudSetting
@@ -31,9 +31,9 @@ object TargetHud : Module(
     category = Category.SUBADDONS
 ){
     private val color: Color by ColorSetting("Color", Color(21, 22, 23, 0.5f), allowAlpha = true)
-    private val outlinecolor: Color by ColorSetting("Outline Color", Color(21, 22, 23, 0.5f), allowAlpha = true)
-
     private val outline: Boolean by BooleanSetting("Outline", true)
+    private val outlinecolor: Color by ColorSetting("Outline Color", Color(21, 22, 23, 0.5f), allowAlpha = true).withDependency { outline }
+
     private val hud: HudElement by HudSetting("Display", 10f, 10f, 2f, false) {
         val targetEntity = target?.entity
         if (target != null && targetEntity?.isInvisible == false) {
@@ -87,9 +87,7 @@ object TargetHud : Module(
     fun onRenderWorld(event: RenderWorldLastEvent) {
         if (target?.entity?.isDead == true && !targetCD.hasTimePassed()) {
             val targetEntity = target?.entity ?: return
-            runIn(15) {
-                if (!targetCD.hasTimePassed() && target?.entity == targetEntity) target = null
-            }
+            runIn(15) { if (!targetCD.hasTimePassed() && target?.entity == targetEntity) target = null }
         }
 
         val entity = mc.pointedEntity ?: return
