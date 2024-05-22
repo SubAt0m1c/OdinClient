@@ -16,7 +16,8 @@ object GoldorTimer : Module(
     description = "Displays the time until the Goldor fight starts in floor 7."
 ) {
     private val startTimer: Boolean by BooleanSetting("Start Timer", default = true, description = "5 second countdown until terms/devices are able to be completed")
-    private val displayInTicks: Boolean by DualSetting("Display in Ticks", default = false, left = "Seconds", right = "Ticks", description = "Displays the timer in game ticks rather than ms")
+    private val displayText: Boolean by BooleanSetting("Display Text", default = true, description = "Displays \"Start\"/\"Tick\" before the count")
+    private val displayInTicks: Boolean by DualSetting("Timer Style", "Seconds", "Ticks", default = false, description = "Which Style to display timer in")
     private val symbolDisplay: Boolean by BooleanSetting("Display Symbol", default = true, description = "Displays s or t after the time")
     private val showPrefix: Boolean by BooleanSetting("Show Prefix", default = true, description = "Shows the prefix of the timer")
     private val hud: HudElement by HudSetting("Timer Hud", 10f, 10f, 1f, false) {
@@ -31,8 +32,11 @@ object GoldorTimer : Module(
                 displayType in 0..20 -> "§c"
                 else -> return@HudSetting 0f to 0f
             }
-            val text = if (startTime > 0) "§aStart: " else "§8Tick: "
-
+            val text = when {
+                (!displayText) -> ""
+                (startTime >= 0)  -> "§aStart: "
+                else -> "§8Tick: "
+            }
             val displayTimer = if (!displayInTicks) { String.format("%.2f", displayType.toFloat() / 20) } else displayType
             val displaySymbol = when {
                 (!displayInTicks && symbolDisplay) -> "s"

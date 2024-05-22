@@ -21,15 +21,14 @@ object DragonPriority {
         val priorityDragon = if (!dragonPriorityToggle) {
             spawningDragon.sortBy { priorityList.indexOf(it) }
             spawningDragon[0]
-        } else {
+        } else
             sortPriority(spawningDragon)
-        }
         return priorityDragon
     }
 
     fun dragonPrioritySpawn(dragon: WitherDragonsEnum) {
-        if (dragonTitle) PlayerUtils.alert("§${dragon.colorCode}${dragon.name} is spawning!")
-        if (dragonPriorityToggle && WitherDragonsEnum.entries.filter { it.spawning }.toMutableList().size == 2) modMessage("§${dragon.colorCode}${dragon.name} §7is your priority dragon!")
+        if (dragonTitle && WitherDragons.enabled) PlayerUtils.alert("§${dragon.colorCode}${dragon.name} is spawning!")
+        if (dragonPriorityToggle && WitherDragons.enabled && WitherDragonsEnum.entries.filter { it.spawning }.toMutableList().size == 2) modMessage("§${dragon.colorCode}${dragon.name} §7is your priority dragon!")
     }
 
     private fun sortPriority(spawningDragon: MutableList<WitherDragonsEnum>): WitherDragonsEnum {
@@ -37,7 +36,7 @@ object DragonPriority {
                 if (BlessingDisplay.Blessings.TIME.current > 0) 2.5 else 0.0
 
         val playerClass = DungeonUtils.dungeonTeammates.find { it.name == mc.thePlayer.name }?.clazz
-            ?: return modMessage("§cPlayer Class wasn't found! please report this").let { WitherDragonsEnum.Purple }
+            ?: return modMessage("§cPlayer Class wasn't found! please report this").let { WitherDragonsEnum.None }
 
         val dragonList = listOf(WitherDragonsEnum.Orange, WitherDragonsEnum.Green, WitherDragonsEnum.Red, WitherDragonsEnum.Blue, WitherDragonsEnum.Purple)
         val priorityList =
@@ -53,12 +52,12 @@ object DragonPriority {
             else if ((playerClass == Classes.Healer && spawningDragon.any { it == WitherDragonsEnum.Purple }) || soloDebuffOnAll)
                 spawningDragon.sortByDescending { priorityList.indexOf(it) }
         }
-        /**devMessage("§7 power: $totalPower")
+        devMessage("§7 power: $totalPower")
         devMessage("§7 class: $playerClass")
-        devMessage("§7 priority: ${(spawningDragon[0].name)}, ${spawningDragon[1].name}")
-        devMessage("§7 priorityList: ${priorityList.joinToString(", ") { it.name }}")
+        devMessage("§7 priority: $spawningDragon")
+        devMessage("§7 priorityList: $priorityList")
         devMessage("is total power >= normal power? ${totalPower >= normalPower}")
-        devMessage("is total power >= easy power? ${totalPower >= easyPower}")*/
+        devMessage("is total power >= easy power? ${totalPower >= easyPower}")
         return spawningDragon[0]
     }
 }

@@ -5,7 +5,8 @@ import com.google.gson.reflect.TypeToken
 import me.odinmain.events.impl.BlockChangeEvent
 import me.odinmain.events.impl.EnteredDungeonRoomEvent
 import me.odinmain.utils.*
-import me.odinmain.utils.render.*
+import me.odinmain.utils.render.Color
+import me.odinmain.utils.render.Renderer
 import me.odinmain.utils.skyblock.dungeon.DungeonUtils
 import me.odinmain.utils.skyblock.getBlockIdAt
 import net.minecraft.init.Blocks
@@ -41,13 +42,13 @@ object BeamsSolver {
         if (room.data.name != "Creeper Beams") return reset()
 
         if (scanned) return
-        lanternPairs.forEachIndexed { index, it ->
-            val pos = Vec2(room.x, room.z).addRotationCoords(room.rotation, x = it[0], z = it[2]).let { vec -> BlockPos(vec.x, it[1], vec.z) }
+        lanternPairs.forEach {
+            val pos = room.vec2.addRotationCoords(room.rotation, x = it[0], z = it[2]).let { vec -> BlockPos(vec.x, it[1], vec.z) }
 
-            val pos2 = Vec2(room.x, room.z).addRotationCoords(room.rotation, x = it[3], z = it[5]).let { vec -> BlockPos(vec.x, it[4], vec.z) }
+            val pos2 = room.vec2.addRotationCoords(room.rotation, x = it[3], z = it[5]).let { vec -> BlockPos(vec.x, it[4], vec.z) }
 
             if (getBlockIdAt(pos) == 169 && getBlockIdAt(pos2) == 169)
-                currentLanternPairs[pos] = pos2 to colors[index]
+                currentLanternPairs[pos] = pos2 to colors[currentLanternPairs.size]
         }
         scanned = true
     }
@@ -55,11 +56,11 @@ object BeamsSolver {
     fun onRenderWorld() {
         if (DungeonUtils.currentRoomName != "Creeper Beams" || DungeonUtils.inBoss || !scanned) return
         val finalLanternPairs = currentLanternPairs.toMap()
-        finalLanternPairs.entries.forEachIndexed { _, positions ->
+        finalLanternPairs.entries.forEach { positions ->
             val color = positions.value.second
 
-            RenderUtils.drawBlockBox(positions.key, color, fill = .7f, depth = PuzzleSolvers.beamsDepth)
-            RenderUtils.drawBlockBox(positions.value.first, color, fill = .7f, depth = PuzzleSolvers.beamsDepth)
+            Renderer.drawBox(positions.key.toAABB(), color, depth = PuzzleSolvers.beamsDepth, outlineAlpha = if (PuzzleSolvers.beamStyle == 0) 0 else color.alpha, fillAlpha = if (PuzzleSolvers.beamStyle == 1) 0 else color.alpha)
+            Renderer.drawBox(positions.value.first.toAABB(), color, depth = PuzzleSolvers.beamsDepth, outlineAlpha = if (PuzzleSolvers.beamStyle == 0) 0 else color.alpha, fillAlpha = if (PuzzleSolvers.beamStyle == 1) 0 else color.alpha)
 
             if (PuzzleSolvers.beamsTracer)
                 Renderer.draw3DLine(positions.key.toVec3().addVec(0.5, 0.5, 0.5), positions.value.first.toVec3().addVec(0.5, 0.5, 0.5), color, depth = PuzzleSolvers.beamsDepth, lineWidth = 1f)
@@ -78,7 +79,7 @@ object BeamsSolver {
     }
 
     private val colors = listOf(
-        Color.ORANGE, Color.GREEN, Color.PINK, Color.CYAN, Color.YELLOW, Color.DARK_RED, Color.WHITE
+        Color.ORANGE, Color.GREEN, Color.PINK, Color.CYAN, Color.YELLOW, Color.DARK_RED, Color.WHITE, Color.PURPLE
     )
 }
 

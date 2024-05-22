@@ -3,9 +3,11 @@ package me.odinmain.features.impl.kuudra
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.settings.impl.BooleanSetting
+import me.odinmain.utils.ServerUtils.getPing
 import me.odinmain.utils.distanceSquaredTo
 import me.odinmain.utils.skyblock.PlayerUtils
 import me.odinmain.utils.skyblock.partyMessage
+import net.minecraft.client.entity.EntityOtherPlayerMP
 
 object KuudraReminders : Module(
     name = "Kuudra Reminders",
@@ -30,8 +32,8 @@ object KuudraReminders : Module(
             PlayerUtils.alert("Buy Upgrades", displayText = displayText, playSound = playSound)
         }
 
-        onMessage("[NPC] Elle: Not again!", false, { pickUpSupplies }) {
-            PlayerUtils.alert("PickUP supplies", displayText = displayText, playSound = playSound)
+        onMessage("[NPC] Elle: Not again!", false, { pickUpSupplies && enabled }) {
+            PlayerUtils.alert("Pick up supplies", displayText = displayText, playSound = playSound)
         }
 
         onMessage("[NPC] Elle: It's time to build the Ballista again! Cover me!", false, { buildBallista && enabled }) {
@@ -44,7 +46,7 @@ object KuudraReminders : Module(
 
         onMessage(Regex("Used Extreme Focus! \\((\\d+) Mana\\)"), { manaDrain && enabled }) {
             val mana = Regex("Used Extreme Focus! \\((\\d+) Mana\\)").find(it)?.groupValues?.get(1)?.toIntOrNull() ?: return@onMessage
-            val amount = mc.theWorld.loadedEntityList.filter { it.distanceSquaredTo(mc.thePlayer) <= 7 }.size - 1
+            val amount = mc.theWorld.loadedEntityList.filter { it.distanceSquaredTo(mc.thePlayer) <= 7 && it.getPing() == 0 && it is EntityOtherPlayerMP}.size - 1
             partyMessage("Used $mana mana on $amount people.")
         }
     }
