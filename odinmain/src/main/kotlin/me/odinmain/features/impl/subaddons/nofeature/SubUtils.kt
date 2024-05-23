@@ -164,7 +164,7 @@ object SubUtils {
         }
 
         if (event.message.matches(Regex("An exception occurred in your connection, so you were put in the SkyBlock Lobby!")) && gettingBanned) {
-            modMessage("§cAn exception occurred in your connection, so you have been routed to limbo!")
+            modMessage("§cAn exception occurred in your connection, so you have been routed to limbo!", false)
             event.isCanceled = true
         }
 
