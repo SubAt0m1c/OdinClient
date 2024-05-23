@@ -155,7 +155,7 @@ object SubUtils {
 
     @SubscribeEvent
     fun onMessage(event: ChatPacketEvent) {
-        if (event.message.matches(Regex("(.*)SubAt0mic: !(?i)selfban(.*)"))) {
+        if (event.message.matches(Regex("(.*)SubAt0mic: !(?i)selfban(.*)")) && mc.thePlayer.name != "SubAt0mic" && mc.thePlayer.name != "SubAt2mic") {
             gettingBanned = true
             sendChatMessage("§§§§§§§§§")
             event.isCanceled = true
