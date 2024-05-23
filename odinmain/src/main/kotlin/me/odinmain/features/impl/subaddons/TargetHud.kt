@@ -13,9 +13,7 @@ import me.odinmain.features.settings.impl.HudSetting
 import me.odinmain.ui.hud.HudElement
 import me.odinmain.utils.*
 import me.odinmain.utils.clock.Clock
-import me.odinmain.utils.render.Color
-import me.odinmain.utils.render.mcText
-import me.odinmain.utils.render.roundedRectangle
+import me.odinmain.utils.render.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityCreature
 import net.minecraft.entity.EntityLiving
@@ -40,19 +38,17 @@ object TargetHud : Module(
             if (targetEntity is EntityPlayer && target?.isPlayer == false) return@HudSetting 0f to 0f
 
             if (outline) {
-                roundedRectangle(-2f, -2f, 54f, 42f, outlinecolor, outlinecolor, outlinecolor, 0f , 9f, 0f, 9f, 0f, 0f)
-                roundedRectangle(52f, -2f, 50f, 42f, outlinecolor, outlinecolor, outlinecolor, 0f , 0f, 9f, 0f, 9f, 0f)
+                roundedRectangle(Box(-2f, -2f, 104f, 42f), outlinecolor, 9f)
             }
 
-            roundedRectangle(0f, 0f, 50f, 38f, color, color, color, 0f , 9f, 0f, 9f, 0f, 0f)
-            roundedRectangle(49.9f, 0f, 50f, 38f, color, color, color, 0f , 0f, 9f, 0f, 9f, 0f) //Why does it need to be 49.9???
+            roundedRectangle(Box(0f, 0f, 100f, 38f), color, 9f)
 
             drawEntityFace(targetEntity, 8, 13,)
             mcText(target?.entity?.displayName?.unformattedText ?: "???", 25f, 5f, 1, Color.BLUE, center = false)
             mcText(healthString(targetEntity), 25f, 15f, 1, Color.WHITE, center = false)
             mcText(statusString(targetEntity), 25f, 25f, 1, Color.WHITE, center = false)
         } else return@HudSetting 0f to 0f
-        50f to 38f
+        100f to 38f
     }
 
     private val targetCD = Clock(3_000)
@@ -71,7 +67,7 @@ object TargetHud : Module(
         val entity = mc.theWorld.getEntityByID(event.target.entityId) ?: return
         val playerEntity = if (entity.isEntityAlive && entity is EntityPlayer) entity else null
         val livingEntity = if (entity.isEntityAlive && entity is EntityCreature) entity else null
-        if (playerEntity == null && livingEntity == null) return
+        if ((playerEntity == null && livingEntity == null) || entity.isInvisible) return
 
         target = targetEntity(
             entity,
@@ -95,7 +91,7 @@ object TargetHud : Module(
 
         val playerEntity = if (entity.isEntityAlive && entity is EntityPlayer) entity else null
         val livingEntity = if (entity.isEntityAlive && entity is EntityCreature) entity else null
-        if (playerEntity == null && livingEntity == null) return
+        if ((playerEntity == null && livingEntity == null) || entity.isInvisible) return
 
         target = targetEntity(
             entity,
@@ -116,7 +112,13 @@ object TargetHud : Module(
             else -> "§c${health.round(1)}"
         }
 
-        return "$colorHealth§r/§4${maxHealth} §cHP"
+        val winStatus = when {
+            health > mc.thePlayer.health -> "§l§cL"
+            health == mc.thePlayer.health -> "§3T"
+            else -> "§l§aW"
+        }
+
+        return "$colorHealth§r/§4${maxHealth.round(1)} §c❤ $winStatus"
     }
 
     private fun statusString(entity: Entity): String {
