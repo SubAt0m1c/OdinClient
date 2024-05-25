@@ -117,7 +117,7 @@ object TargetHud : Module(
             target?.entity?.isInvisible == false
             && (target?.isPlayer == true || entity !is EntityPlayer)
             )  {
-            drawHealthBar(target?.entity ?: return, outlinecolor)
+            drawHealthBar(target?.entity ?: return, color)
         }
         //if (followPlayer && target?.entity != null) drawTargetHudInWorld(target?.entity ?: return, outline, outlinecolor, color)
     }

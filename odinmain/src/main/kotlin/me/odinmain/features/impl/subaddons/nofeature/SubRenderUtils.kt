@@ -161,17 +161,15 @@ object SubRenderUtils {
             ) ?: continue
             box = BoxWithClass(min(screenPos.x, box.x), min(screenPos.y, box.y), max(screenPos.x, box.w), max(screenPos.y, box.h))
         }
+
         fun heightCalc(multiplier: Int = 1) : Float {
-            return (box.h - box.y)/multiplier
-        }
-        fun getHealthPercent(entity: Entity) : Float {
-            return -((entity.health()/entity.maxHealth())-1)
+            return (box.h - box.y) / multiplier
         }
 
         if ((box.x > 0f && box.y > 0f && box.x <= mc.displayWidth && box.y <= mc.displayHeight) || (box.w > 0 && box.h > 0 && box.w <= mc.displayWidth && box.h <= mc.displayHeight)) {
             roundedRectangle(box.x - heightCalc(5), box.y, heightCalc(8), heightCalc(), outlinecolor, 0f)
-            roundedRectangle(box.x - heightCalc(5) + heightCalc(50), box.y + heightCalc(50), heightCalc(8)-heightCalc(25), heightCalc()-heightCalc(25), Color.GREEN, 0f)
-            roundedRectangle(box.x - heightCalc(5) + heightCalc(50), box.y + heightCalc(50), heightCalc(8)-heightCalc(25), (heightCalc()-heightCalc(25)) * getHealthPercent(targetEntity), Color.RED, 0f)
+            roundedRectangle(box.x - heightCalc(5) + heightCalc(50), box.y + heightCalc(50), heightCalc(8)-heightCalc(25), heightCalc()-heightCalc(25), color(targetEntity), 0f)
+            roundedRectangle(box.x - heightCalc(5) + heightCalc(50), box.y + heightCalc(50), heightCalc(8)-heightCalc(25), (heightCalc()-heightCalc(25)) * getHealthPercent(targetEntity), outlinecolor, 0f)
         }
 
         //end START
@@ -182,6 +180,21 @@ object SubRenderUtils {
         GL11.glMatrixMode(GL11.GL_MODELVIEW)
         GlStateManager.popMatrix()
         GL11.glPopAttrib()
+    }
+
+    private fun getHealthPercent(entity: Entity) : Float {
+        return -((entity.health()/entity.maxHealth())-1)
+    }
+
+    private fun color(entity: Entity) : Color {
+        val hp = getHealthPercent(entity)
+        return when {
+            hp <= 0 -> Color.DARK_GREEN
+            hp <= 0.25 -> Color.GREEN
+            hp <= 0.75 -> Color.ORANGE
+            hp > 0.75 -> Color.RED
+            else -> Color.WHITE
+        }
     }
 
 }
