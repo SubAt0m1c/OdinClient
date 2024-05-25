@@ -70,7 +70,7 @@ object RenderUtils {
     val Entity.renderVec: Vec3
         get() = Vec3(renderX, renderY, renderZ)
 
-    private val viewerVec: Vec3
+    val viewerVec: Vec3
         get() = Vec3(renderManager.viewerPosX, renderManager.viewerPosY, renderManager.viewerPosZ)
 
     fun blendFactor() {
@@ -131,7 +131,7 @@ object RenderUtils {
         GlStateManager.color(r / 255f, g / 255f, b / 255f, a / 255f)
     }
 
-    private fun getRenderPos(vec: Vec3): Vec3 {
+    fun getRenderPos(vec: Vec3): Vec3 {
         val renderPosX = mc.renderManager.viewerPosX
         val renderPosY = mc.renderManager.viewerPosY
         val renderPosZ = mc.renderManager.viewerPosZ
@@ -552,13 +552,13 @@ object RenderUtils {
         GL11.glPopAttrib()
     }
 
-    private fun getMatrix(matrix: Int): Matrix4f {
+    fun getMatrix(matrix: Int): Matrix4f {
         val floatBuffer = BufferUtils.createFloatBuffer(16)
         GL11.glGetFloat(matrix, floatBuffer)
         return Matrix4f().load(floatBuffer) as Matrix4f
     }
 
-    private fun worldToScreen(pointInWorld: Vec3f, view: Matrix4f, projection: Matrix4f, screenWidth: Int, screenHeight: Int): Vec2f? {
+    fun worldToScreen(pointInWorld: Vec3f, view: Matrix4f, projection: Matrix4f, screenWidth: Int, screenHeight: Int): Vec2f? {
         val clipSpacePos = (Vec4f(pointInWorld.x, pointInWorld.y, pointInWorld.z, 1.0f) * view) * projection
         val ndcSpacePos = Vector3f(clipSpacePos.x / clipSpacePos.w, clipSpacePos.y / clipSpacePos.w, clipSpacePos.z / clipSpacePos.w)
         val screenX: Float = (ndcSpacePos.x + 1.0f) / 2.0f * screenWidth

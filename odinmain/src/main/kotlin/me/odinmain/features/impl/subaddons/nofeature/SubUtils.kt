@@ -64,9 +64,8 @@ object SubUtils {
      */
     private fun healthData(entity: Entity) {
         var health: Float = 0f
-        var maxHealth: Float = 0f
+        var maxHealth: Float = 20f
         if (entity is EntityPlayer) {
-            maxHealth = 20f
             mc.thePlayer.worldScoreboard.scoreObjectives.forEach { score ->
                 val healthData = score.scoreboard.scores.find { it.playerName == entity.name }?.scorePoints?.toFloat() ?: 0f.also { maxHealth = 0f }
                 if (EntityHealthData[entity.name]?.first == healthData) return else health = healthData
@@ -142,15 +141,6 @@ object SubUtils {
                     ?.let { cleanSB(it.displayName).contains("TNT TAG") } ?: false
             }
         }.register()
-    }
-
-    fun drawEntityFace(entity: Entity, x: Int, y: Int, ) {
-        val playerInfo: NetworkPlayerInfo = mc.netHandler.getPlayerInfo(entity.uniqueID)?: return
-
-        mc.textureManager.bindTexture(playerInfo.locationSkin)
-        GL11.glColor4f(1F, 1F, 1F, 1F);
-
-        Gui.drawScaledCustomSizeModalRect(x-5, y-5, 8f, 8f, 8,8,20,20,64f, 64f )
     }
 
     @SubscribeEvent

@@ -1,8 +1,11 @@
 package me.odinmain.features.impl.subaddons
 
+import me.odinmain.OdinMain
 import me.odinmain.features.Category
 import me.odinmain.features.Module
-import me.odinmain.features.impl.subaddons.nofeature.SubUtils.drawEntityFace
+import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawEntityFace
+import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawHealthBar
+import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawTargetHudInWorld
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isPlayer
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
@@ -19,6 +22,9 @@ import net.minecraft.entity.EntityCreature
 import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemAppleGold
+import net.minecraft.item.ItemBow
+import net.minecraft.util.BlockPos
+import net.minecraft.util.Vec3
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.event.entity.player.AttackEntityEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -31,8 +37,11 @@ object TargetHud : Module(
     private val color: Color by ColorSetting("Color", Color(21, 22, 23, 0.5f), allowAlpha = true)
     private val outline: Boolean by BooleanSetting("Outline", true)
     private val outlinecolor: Color by ColorSetting("Outline Color", Color(21, 22, 23, 0.5f), allowAlpha = true).withDependency { outline }
+    private val healthBar: Boolean by BooleanSetting("Health bar", description = "displays a health bar next to the target")
+    //private val allBar: Boolean by BooleanSetting("Everyone", description = "Shows the health bar on everyone, regardless of whether or not theyre your target").withDependency { healthBar }
 
     private val hud: HudElement by HudSetting("Display", 10f, 10f, 2f, false) {
+        //if (followPlayer) return@HudSetting 0f to 0f
         val targetEntity = target?.entity
         if (target != null && targetEntity?.isInvisible == false) {
             if (targetEntity is EntityPlayer && target?.isPlayer == false) return@HudSetting 0f to 0f
@@ -86,22 +95,34 @@ object TargetHud : Module(
             runIn(15) { if (!targetCD.hasTimePassed() && target?.entity == targetEntity) target = null }
         }
 
-        val entity = mc.pointedEntity ?: return
+        val entity = mc.pointedEntity
         if (targetCD.hasTimePassed() && target != null) target = null
 
-        val playerEntity = if (entity.isEntityAlive && entity is EntityPlayer) entity else null
-        val livingEntity = if (entity.isEntityAlive && entity is EntityCreature) entity else null
-        if ((playerEntity == null && livingEntity == null) || entity.isInvisible) return
+        if (entity != null) {
+            val playerEntity = if (entity.isEntityAlive && entity is EntityPlayer) entity else null
+            val livingEntity = if (entity.isEntityAlive && entity is EntityCreature) entity else null
+            if ((playerEntity != null || livingEntity != null) && !entity.isInvisible) {
+                target = targetEntity(
+                    entity,
+                    entity.isPlayer(),
+                    livingEntity,
+                    playerEntity,
+                )
+            }
+        }
 
-        target = targetEntity(
-            entity,
-            entity.isPlayer(),
-            livingEntity,
-            playerEntity,
-        )
+        if (
+            healthBar && target?.entity != null &&
+            mc.thePlayer.canEntityBeSeen(target?.entity) &&
+            target?.entity?.isInvisible == false
+            && (target?.isPlayer == true || entity !is EntityPlayer)
+            )  {
+            drawHealthBar(target?.entity ?: return, outlinecolor)
+        }
+        //if (followPlayer && target?.entity != null) drawTargetHudInWorld(target?.entity ?: return, outline, outlinecolor, color)
     }
 
-    private fun healthString(entity: Entity): String {
+    fun healthString(entity: Entity): String {
         val health = entity.health()
         val maxHealth = entity.maxHealth()
 
@@ -121,7 +142,7 @@ object TargetHud : Module(
         return "$colorHealth§r/§4${maxHealth.round(1)} §c❤ $winStatus"
     }
 
-    private fun statusString(entity: Entity): String {
+    fun statusString(entity: Entity): String {
         if (entity.isDead) return "§cDEAD"
         val returnString = StringBuilder()
         if (mc.thePlayer.canEntityBeSeen(entity) && entity is EntityPlayer) {
