@@ -162,14 +162,14 @@ object SubRenderUtils {
             box = BoxWithClass(min(screenPos.x, box.x), min(screenPos.y, box.y), max(screenPos.x, box.w), max(screenPos.y, box.h))
         }
 
-        fun heightCalc(multiplier: Int = 1) : Float {
+        fun hc(multiplier: Int = 1) : Float {
             return (box.h - box.y) / multiplier
         }
 
         if ((box.x > 0f && box.y > 0f && box.x <= mc.displayWidth && box.y <= mc.displayHeight) || (box.w > 0 && box.h > 0 && box.w <= mc.displayWidth && box.h <= mc.displayHeight)) {
-            roundedRectangle(box.x - heightCalc(5), box.y, heightCalc(8), heightCalc(), outlinecolor, 0f)
-            roundedRectangle(box.x - heightCalc(5) + heightCalc(50), box.y + heightCalc(50), heightCalc(8)-heightCalc(25), heightCalc()-heightCalc(25), color(targetEntity), 0f)
-            roundedRectangle(box.x - heightCalc(5) + heightCalc(50), box.y + heightCalc(50), heightCalc(8)-heightCalc(25), (heightCalc()-heightCalc(25)) * getHealthPercent(targetEntity), outlinecolor, 0f)
+            roundedRectangle(box.x - hc(5), box.y, hc(12), hc() - hc(10), outlinecolor, 0f)
+            roundedRectangle(box.x - hc(5) + hc(70), box.y + hc(70), hc(12)-hc(35), hc()-hc(35)-hc(10), color(targetEntity), 0f)
+            roundedRectangle(box.x - hc(5) + hc(70), box.y + hc(70), hc(12)-hc(35), (hc()-hc(35)-hc(10)) * remainingHealth(targetEntity), Color.DARK_GRAY, 0f)
         }
 
         //end START
@@ -182,18 +182,18 @@ object SubRenderUtils {
         GL11.glPopAttrib()
     }
 
-    private fun getHealthPercent(entity: Entity) : Float {
+    private fun remainingHealth(entity: Entity) : Float {
         return -((entity.health()/entity.maxHealth())-1)
     }
 
     private fun color(entity: Entity) : Color {
-        val hp = getHealthPercent(entity)
+        val hp = remainingHealth(entity)
         return when {
             hp <= 0 -> Color.DARK_GREEN
             hp <= 0.25 -> Color.GREEN
             hp <= 0.75 -> Color.ORANGE
             hp > 0.75 -> Color.RED
-            else -> Color.WHITE
+            else -> Color.DARK_GREEN
         }
     }
 
