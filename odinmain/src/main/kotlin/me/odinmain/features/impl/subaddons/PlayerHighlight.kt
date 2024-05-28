@@ -7,7 +7,7 @@ import me.odinmain.events.impl.RenderEntityModelEvent
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils
-import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
+import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawBoxAroundEntity
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.inTNTTag
 import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.*
@@ -17,7 +17,6 @@ import me.odinmain.utils.render.RenderUtils.renderVec
 import me.odinmain.utils.skyblock.LocationUtils.inSkyblock
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isOnTeam
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isPlayer
-import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
 import me.odinmain.utils.render.*
 import net.minecraft.entity.Entity
 import net.minecraftforge.client.event.RenderWorldLastEvent
@@ -39,7 +38,10 @@ object PlayerHighlight : Module(
     //the way these tracers work without xray, it might actually still be legit according to SkyHanni. Not sure how but /shrug
     private val xray: Boolean by BooleanSetting("Through Walls", true).withDependency { !isLegitVersion }
     private val showinvis: Boolean by BooleanSetting("Show Invis", false).withDependency { !isLegitVersion }
-    val healthDisplay: Boolean by BooleanSetting("Display Health", true)
+    private val healthBar: Boolean by BooleanSetting("Display Health", true)
+    private val style: Boolean by DualSetting("Style", left = "scale", right = "Object", default = false).withDependency { healthBar }
+    private val expand: Double by NumberSetting("Expand", 0.0, -0.3, 2.0, 0.1, description = "Expand the health bar").withDependency { healthBar && style}
+    private val xShift: Double by NumberSetting("X Shift", 0.0, -35, 10, 1.0, description = "Offset the X of the health bar").withDependency { healthBar && style}
     private val disableintnt: Boolean by BooleanSetting("Disable in TNT tag", true, description = "Disables the highlight when playing tnt tag")
     private val advanced: Boolean by DropdownSetting("Show Settings", false)
     private val teamColor: Color by ColorSetting("Team Color", Color.CYAN, true).withDependency { advanced }
@@ -101,8 +103,9 @@ object PlayerHighlight : Module(
         }}
 
         profile("health") { currentplayers.forEach {
-            if ((!it.isInvisible || showinvis) && (!inTNTTag || !disableintnt) && (mc.thePlayer.canEntityBeSeen(it) || renderThrough)) {
-                SubRenderUtils.drawHealthBar(it, color)
+            if ((!it.isInvisible || showinvis) && (!inTNTTag || !disableintnt) && (mc.thePlayer.canEntityBeSeen(it) || renderThrough) && healthBar) {
+                if (!style) SubRenderUtils.drawHealthBar(it, color) else
+                    drawBoxAroundEntity(it, 4, expand, xShift)
             }
         }}
     }

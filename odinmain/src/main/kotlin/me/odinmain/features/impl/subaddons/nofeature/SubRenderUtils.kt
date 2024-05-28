@@ -1,7 +1,9 @@
 package me.odinmain.features.impl.subaddons.nofeature
 
+import com.sun.security.ntlm.Client
 import me.odinmain.OdinMain.mc
 import me.odinmain.features.impl.subaddons.TargetHud.healthString
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.getTimer
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isPlayer
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
@@ -16,19 +18,25 @@ import me.odinmain.utils.render.RenderUtils.viewerVec
 import me.odinmain.utils.render.RenderUtils.worldToScreen
 import me.odinmain.utils.skyblock.modMessage
 import me.odinmain.utils.unaryMinus
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.RenderGlobal
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import org.lwjgl.opengl.GL11
 import kotlin.math.max
 import kotlin.math.min
 
+
 object SubRenderUtils {
 
-    fun drawEntityFace(entity: Entity, x: Int, y: Int, ) {
+    fun drawEntityFace(entity: Entity, x: Int, y: Int) {
         val playerInfo: NetworkPlayerInfo = mc.netHandler.getPlayerInfo(entity.uniqueID)?: return
 
         mc.textureManager.bindTexture(playerInfo.locationSkin)
@@ -161,15 +169,15 @@ object SubRenderUtils {
             ) ?: continue
             box = BoxWithClass(min(screenPos.x, box.x), min(screenPos.y, box.y), max(screenPos.x, box.w), max(screenPos.y, box.h))
         }
-
+        
         fun hc(multiplier: Int = 1) : Float {
             return (box.h - box.y) / multiplier
         }
 
         if ((box.x > 0f && box.y > 0f && box.x <= mc.displayWidth && box.y <= mc.displayHeight) || (box.w > 0 && box.h > 0 && box.w <= mc.displayWidth && box.h <= mc.displayHeight)) {
-            roundedRectangle(box.x - hc(5), box.y, hc(12), hc() - hc(10), outlinecolor, 0f)
-            roundedRectangle(box.x - hc(5) + hc(70), box.y + hc(70), hc(12)-hc(35), hc()-hc(35)-hc(10), color(targetEntity), 0f)
-            roundedRectangle(box.x - hc(5) + hc(70), box.y + hc(70), hc(12)-hc(35), (hc()-hc(35)-hc(10)) * remainingHealth(targetEntity), Color.DARK_GRAY, 0f)
+            roundedRectangle(box.x - hc(5), box.y - hc(8), hc(13), hc() + hc(7), outlinecolor, 0f)
+            roundedRectangle(box.x - hc(5) + hc(74), box.y + hc(74) - hc(8), hc(13)-hc(37), hc()-hc(37)+hc(7), color(targetEntity), 0f)
+            roundedRectangle(box.x - hc(5) + hc(74), box.y + hc(74) - hc(8), hc(13)-hc(37), (hc()-hc(37)+hc(7)) * remainingHealth(targetEntity), Color.DARK_GRAY, 0f)
         }
 
         //end START
@@ -180,6 +188,45 @@ object SubRenderUtils {
         GL11.glMatrixMode(GL11.GL_MODELVIEW)
         GlStateManager.popMatrix()
         GL11.glPopAttrib()
+    }
+
+
+    fun drawBoxAroundEntity(e: Entity, type: Int, expand: Double, shift: Double) {
+        if (e is EntityLivingBase) {
+            val x =
+                e.lastTickPosX + (e.posX - e.lastTickPosX) * getTimer().renderPartialTicks.toDouble() - mc.renderManager.viewerPosX
+            val y =
+                e.lastTickPosY + (e.posY - e.lastTickPosY) * getTimer().renderPartialTicks.toDouble() - mc.renderManager.viewerPosY
+            val z =
+                e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * getTimer().renderPartialTicks.toDouble() - mc.renderManager.viewerPosZ
+            val d = expand.toFloat() / 40.0f
+
+            GlStateManager.pushMatrix()
+            val i: Int
+            if (type == 4) {
+                val a = (e.health() / e.maxHealth()).toDouble()
+                val r = (min(1.0, a))
+                val b = (74.0 * r).toInt()
+
+                val hc: Int = when {
+                    r < 0.3 -> Color.RED.rgba
+                    r < 0.5 -> Color.ORANGE.rgba
+                    r < 0.7 -> Color.YELLOW.rgba
+                    r < 1 -> Color.GREEN.rgba
+                    else -> Color.DARK_GREEN.rgba
+                }
+                GL11.glTranslated(x, y - 0.2, z)
+                GL11.glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
+                GlStateManager.disableDepth()
+                GL11.glScalef(0.03f + d, 0.03f + d, 0.03f + d)
+                i = (21.0 + shift * 2.0).toInt()
+                Gui.drawRect(i, -1, i + 5, 75, Color.BLACK.rgba)
+                Gui.drawRect(i + 1, b, i + 4, 74, Color.DARK_GRAY.rgba)
+                Gui.drawRect(i + 1, 0, i + 4, b, hc)
+                GlStateManager.enableDepth()
+            }
+            GlStateManager.popMatrix()
+        }
     }
 
     private fun remainingHealth(entity: Entity) : Float {

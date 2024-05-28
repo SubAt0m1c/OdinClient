@@ -2,9 +2,7 @@ package me.odinmain.features.impl.subaddons.nofeature
 
 import me.odinmain.OdinMain.mc
 import me.odinmain.events.impl.ChatPacketEvent
-import me.odinmain.features.impl.subaddons.TargetHud
 import me.odinmain.utils.ServerUtils.getPing
-import me.odinmain.utils.ServerUtils.onWorldLoad
 import me.odinmain.utils.cleanSB
 import me.odinmain.utils.clock.Executor
 import me.odinmain.utils.clock.Executor.Companion.register
@@ -12,22 +10,29 @@ import me.odinmain.utils.runIn
 import me.odinmain.utils.skyblock.LocationUtils.onHypixel
 import me.odinmain.utils.skyblock.modMessage
 import me.odinmain.utils.skyblock.sendChatMessage
-import me.odinmain.utils.skyblock.sendCommand
-import net.minecraft.client.gui.Gui
-import net.minecraft.client.network.NetworkPlayerInfo
+import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
-import net.minecraftforge.client.MinecraftForgeClient
+import net.minecraft.util.Timer
 import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.FMLNetworkEvent
-import org.lwjgl.opengl.GL11
-import java.util.*
+
 
 object SubUtils {
+
+    fun getTimer(): Timer {
+        return ObfuscationReflectionHelper.getPrivateValue(
+            Minecraft::class.java,
+            Minecraft.getMinecraft(),
+            "timer",
+            "field_71428_T"
+        )
+    }
 
     @SubscribeEvent
     fun onWorldLoad(event: WorldEvent.Load) {
