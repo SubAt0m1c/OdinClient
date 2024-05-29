@@ -2,6 +2,9 @@ package me.odinmain.features.impl.subaddons.nofeature
 
 import me.odinmain.OdinMain.mc
 import me.odinmain.events.impl.ChatPacketEvent
+import me.odinmain.features.impl.subaddons.OtherSettings.antiBot
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
 import me.odinmain.utils.ServerUtils.getPing
 import me.odinmain.utils.cleanSB
 import me.odinmain.utils.clock.Executor
@@ -13,6 +16,7 @@ import me.odinmain.utils.skyblock.sendChatMessage
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLiving
+import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
@@ -25,6 +29,11 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent
 
 object SubUtils {
 
+    /**
+     * Gets rendered Partial Ticks
+     *
+     * @return
+     */
     fun getTimer(): Timer {
         return ObfuscationReflectionHelper.getPrivateValue(
             Minecraft::class.java,
@@ -47,8 +56,7 @@ object SubUtils {
      * @return health as a float.
      */
     fun Entity.health(): Float {
-        healthData(this)
-        return EntityHealthData[this.name]?.first ?: 0f
+        return getHealth(this, false)
     }
 
     /**
@@ -57,8 +65,12 @@ object SubUtils {
      * @return max health as a float.
      */
     fun Entity.maxHealth(): Float {
-        healthData(this)
-        return EntityHealthData[this.name]?.second ?: 0f
+        return getHealth(this, true)
+    }
+
+    private fun getHealth(entity: Entity, mode: Boolean): Float{
+        healthData(entity)
+        return if (mode) EntityHealthData[entity.name]?.second ?: 0f else EntityHealthData[entity.name]?.first ?: 0f
     }
 
     /**
@@ -75,6 +87,12 @@ object SubUtils {
                 val healthData = score.scoreboard.scores.find { it.playerName == entity.name }?.scorePoints?.toFloat() ?: 0f.also { maxHealth = 0f }
                 if (EntityHealthData[entity.name]?.first == healthData) return else health = healthData
             }
+        } else if (entity is EntityVillager) {
+            val healthData = 24f
+            if (EntityHealthData[entity.name]?.first == healthData) return else health = healthData
+            maxHealth = entity.maxHealth
+            EntityHealthData[entity.name] = Pair(health, maxHealth)
+            return
         } else if (entity is EntityLiving) {
             val healthData = entity.health
             if (EntityHealthData[entity.name]?.first == healthData) return else health = healthData
@@ -118,7 +136,11 @@ object SubUtils {
      * @return `true` if the specified player's ping equals 1, otherwise `false`.
      */
     fun Entity.isPlayer(): Boolean {
-        return this.getPing() == 1 //this method doesn't work in lobbies, for some reason.
+        return when {
+            antiBot && this.getPing() == 1 -> true //this method doesn't work in lobbies, because hypixel hates consistency.
+            !antiBot && this is EntityPlayer -> true
+            else -> false
+        }
     }
 
 

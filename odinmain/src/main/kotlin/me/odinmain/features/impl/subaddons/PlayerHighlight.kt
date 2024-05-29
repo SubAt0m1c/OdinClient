@@ -7,7 +7,7 @@ import me.odinmain.events.impl.RenderEntityModelEvent
 import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils
-import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawBoxAroundEntity
+import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawHealthBarInWorld
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.inTNTTag
 import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.*
@@ -105,7 +105,7 @@ object PlayerHighlight : Module(
         profile("health") { currentplayers.forEach {
             if ((!it.isInvisible || showinvis) && (!inTNTTag || !disableintnt) && (mc.thePlayer.canEntityBeSeen(it) || renderThrough) && healthBar) {
                 if (!style) SubRenderUtils.drawHealthBar(it, color) else
-                    drawBoxAroundEntity(it, 4, expand, xShift)
+                    drawHealthBarInWorld(it, 4, expand, xShift)
             }
         }}
     }

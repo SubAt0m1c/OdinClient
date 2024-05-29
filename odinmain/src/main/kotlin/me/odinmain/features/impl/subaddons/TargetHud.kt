@@ -1,12 +1,10 @@
 package me.odinmain.features.impl.subaddons
 
-import me.odinmain.OdinMain
 import me.odinmain.features.Category
 import me.odinmain.features.Module
-import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawBoxAroundEntity
+import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawHealthBarInWorld
 import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawEntityFace
 import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawHealthBar
-import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawTargetHudInWorld
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isPlayer
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
@@ -21,9 +19,6 @@ import net.minecraft.entity.EntityCreature
 import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemAppleGold
-import net.minecraft.item.ItemBow
-import net.minecraft.util.BlockPos
-import net.minecraft.util.Vec3
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.event.entity.player.AttackEntityEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -40,7 +35,7 @@ object TargetHud : Module(
     private val style: Boolean by DualSetting("Style", left = "scale", right = "Object", default = false).withDependency { healthBar }
     private val expand: Double by NumberSetting("Expand", 0.0, -0.3, 2.0, 0.1, description = "Expand the health bar").withDependency { healthBar && style}
     private val xShift: Double by NumberSetting("X Shift", 0.0, -35, 10, 1.0, description = "Offset the X of the health bar").withDependency { healthBar && style}
-    //private val allBar: Boolean by BooleanSetting("Everyone", description = "Shows the health bar on everyone, regardless of whether or not theyre your target").withDependency { healthBar }
+    private val allBar: Boolean by BooleanSetting("Everyone", description = "Shows the health bar on everyone, regardless of whether or not theyre your target").withDependency { healthBar }
 
     private val hud: HudElement by HudSetting("Display", 10f, 10f, 2f, false) {
         //if (followPlayer) return@HudSetting 0f to 0f
@@ -120,7 +115,7 @@ object TargetHud : Module(
             && (target?.isPlayer == true || entity !is EntityPlayer)
             )  {
             if (!style) drawHealthBar(target?.entity ?: return, color) else
-                drawBoxAroundEntity(target?.entity!!, 4, expand, xShift)
+                drawHealthBarInWorld(target?.entity!!, 4, expand, xShift)
         }
         //if (followPlayer && target?.entity != null) drawTargetHudInWorld(target?.entity ?: return, outline, outlinecolor, color)
     }

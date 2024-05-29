@@ -31,15 +31,16 @@ object OtherSettings : Module(
     description = "Settings for other modules"
 ) {
     private val legitSettings by BooleanSetting("Legit Settings", false, description = "Allows some cheater features on legit").withDependency { isLegitVersion }
-    val gyro: Boolean by BooleanSetting("Block align", false, description = "Blocks Align").withDependency { legitSettings }
     val terminals: Boolean by BooleanSetting("Block Wrong Terms", false, description = "Blocks wrong clicks in terminals.").withDependency { legitSettings }
+    val gyro: Boolean by BooleanSetting("Block align", false, description = "Blocks Align")
     val tempwaypointsAnywhere: Boolean by BooleanSetting("Temp Waypoints anywhere", true, description = "Allows temp waypoints anywhere, specifically outside skyblock")
     private val noEther: Boolean by BooleanSetting("No Ether", default = false, description = "Stops you from etherwarping to certain waypoints/blocks. REQUIRES etherwarp helper")
     private var color: Color by ColorSetting("Block Color", default = Color.GREEN, description = "The color of waypoints that block etherwarps.", allowAlpha = true).withDependency { colorPallet == 0  && noEther}
     private val colorPallet: Int by SelectorSetting("Color pallet", "Red", arrayListOf("None", "Aqua", "Magenta", "Yellow", "Lime", "Red")).withDependency { noEther }
     private val fmeCompat: Boolean by BooleanSetting("FME compatability", default = false, description = "Allows for fme compatability. Uses redstone blocks.").withDependency { noEther }
-    private val sbeBloodFix: Boolean by BooleanSetting("SBE Blood Fix", default = false, description = "Fixes sbe's blood camp helper")
+    //private val sbeBloodFix: Boolean by BooleanSetting("SBE Blood Fix", default = false, description = "Fixes sbe's blood camp helper")
     private val editqol: Boolean by BooleanSetting("Edit Mode QOL", false, description = "auto disabled edit mode on world load and stops it from being enabled outside of dungeons")
+    val antiBot: Boolean by BooleanSetting("AntiBot", default = true, description = "Disables highlights and such when a player is a bot. This method is very rudimentary and could be easily patched.")
 
     fun color(): Color {
         val color: Color = when (colorPallet) {
@@ -91,7 +92,11 @@ object OtherSettings : Module(
     val terminalRegex = Regex("^(\\w{1,16}) (?:activated|completed) a (\\w+)! \\(\\d/\\d\\)$")
     */
     init {
-        onMessage(Regex("\\[BOSS] The Watcher:(.*)")) {
+        onWorldLoad {
+            if (editqol) allowEdits = false
+            //terminalMap.clear()
+        }
+        /**onMessage(Regex("\\[BOSS] The Watcher:(.*)")) {
             if (!sbeBloodFix) return@onMessage
             if (it.equalsOneOf(
                     "[BOSS] The Watcher: Congratulations, you made it through the Entrance.",
@@ -106,7 +111,7 @@ object OtherSettings : Module(
                 mc.thePlayer.addChatMessage(ChatComponentText("§r§cThe §r§c§lBLOOD DOOR§r§c has been opened!"))
                 MinecraftForge.EVENT_BUS.post(ChatPacketEvent("§r§cThe §r§c§lBLOOD DOOR§r§c has been opened!"))
             }
-        }
+        } */
         /**
         onMessage(Regex("\\[BOSS] Goldor: Who dares trespass into my domain?")) {
             dungeonTeammates.forEach{ player ->
@@ -131,12 +136,6 @@ object OtherSettings : Module(
                 modMessage("§8Terminals: ${messageBuild.toString().trim()}")
             }
         } */
-
-        onWorldLoad {
-            if (editqol) allowEdits = false
-            //terminalMap.clear()
-        }
-
     }
 
 }

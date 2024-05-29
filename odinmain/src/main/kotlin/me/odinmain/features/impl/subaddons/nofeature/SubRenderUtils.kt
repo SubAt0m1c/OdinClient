@@ -1,6 +1,5 @@
 package me.odinmain.features.impl.subaddons.nofeature
 
-import com.sun.security.ntlm.Client
 import me.odinmain.OdinMain.mc
 import me.odinmain.features.impl.subaddons.TargetHud.healthString
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.getTimer
@@ -18,17 +17,13 @@ import me.odinmain.utils.render.RenderUtils.viewerVec
 import me.odinmain.utils.render.RenderUtils.worldToScreen
 import me.odinmain.utils.skyblock.modMessage
 import me.odinmain.utils.unaryMinus
-import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderGlobal
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import org.lwjgl.opengl.GL11
 import kotlin.math.max
 import kotlin.math.min
@@ -45,7 +40,7 @@ object SubRenderUtils {
         Gui.drawScaledCustomSizeModalRect(x-5, y-5, 8f, 8f, 8,8,20,20,64f, 64f )
     }
 
-    fun drawTargetHudInWorld(targetEntity: Entity, outline: Boolean, outlinecolor: Color, color: Color, depth: Boolean = true) {
+    /**fun drawTargetHudInWorld(targetEntity: Entity, outline: Boolean, outlinecolor: Color, color: Color, depth: Boolean = true) {
         val mvMatrix = getMatrix(2982)
         val projectionMatrix = getMatrix(2983)
         val bb = targetEntity.entityBoundingBox.offset(-targetEntity.positionVector).offset(targetEntity.renderVec).offset(-viewerVec)
@@ -136,7 +131,7 @@ object SubRenderUtils {
         GL11.glMatrixMode(GL11.GL_MODELVIEW)
         GlStateManager.popMatrix()
         GL11.glPopAttrib()
-    }
+    } */
 
     fun drawHealthBar(targetEntity: Entity, outlinecolor: Color) {
         val mvMatrix = getMatrix(2982)
@@ -191,7 +186,7 @@ object SubRenderUtils {
     }
 
 
-    fun drawBoxAroundEntity(e: Entity, type: Int, expand: Double, shift: Double) {
+    fun drawHealthBarInWorld(e: Entity, type: Int, expand: Double, shift: Double) {
         if (e is EntityLivingBase) {
             val x =
                 e.lastTickPosX + (e.posX - e.lastTickPosX) * getTimer().renderPartialTicks.toDouble() - mc.renderManager.viewerPosX
@@ -205,8 +200,9 @@ object SubRenderUtils {
             val i: Int
             if (type == 4) {
                 val a = (e.health() / e.maxHealth()).toDouble()
+                val o = if (a > 1) ((a - 1)%(1)) else 0.0
                 val r = (min(1.0, a))
-                val b = (74.0 * r).toInt()
+                fun ht(b: Double) : Int { return (74.0 * b).toInt() }
 
                 val hc: Int = when {
                     r < 0.3 -> Color.RED.rgba
@@ -221,8 +217,9 @@ object SubRenderUtils {
                 GL11.glScalef(0.03f + d, 0.03f + d, 0.03f + d)
                 i = (21.0 + shift * 2.0).toInt()
                 Gui.drawRect(i, -1, i + 5, 75, Color.BLACK.rgba)
-                Gui.drawRect(i + 1, b, i + 4, 74, Color.DARK_GRAY.rgba)
-                Gui.drawRect(i + 1, 0, i + 4, b, hc)
+                Gui.drawRect(i + 1, ht(r), i + 4, 74, Color.DARK_GRAY.rgba)
+                Gui.drawRect(i + 1, 0, i + 4, ht(r), hc)
+                Gui.drawRect(i + 1, 74, i + 4, 74-ht(o), Color.BLUE.rgba)
                 GlStateManager.enableDepth()
             }
             GlStateManager.popMatrix()
