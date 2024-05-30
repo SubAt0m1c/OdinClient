@@ -8,12 +8,14 @@ import me.odinmain.features.impl.subaddons.nofeature.SubRenderUtils.drawHealthBa
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isPlayer
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.subMessage
 import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.*
 import me.odinmain.ui.hud.HudElement
 import me.odinmain.utils.*
 import me.odinmain.utils.clock.Clock
 import me.odinmain.utils.render.*
+import me.odinmain.utils.skyblock.devMessage
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityCreature
 import net.minecraft.entity.EntityLiving
@@ -28,9 +30,9 @@ object TargetHud : Module(
     description = "Renders info of the target entity",
     category = Category.SUBADDONS
 ){
-    private val color: Color by ColorSetting("Color", Color(21, 22, 23, 0.5f), allowAlpha = true)
+    private val color: Color by ColorSetting("Color", Color.DARK_GRAY, allowAlpha = true)
     private val outline: Boolean by BooleanSetting("Outline", true)
-    private val outlinecolor: Color by ColorSetting("Outline Color", Color(21, 22, 23, 0.5f), allowAlpha = true).withDependency { outline }
+    private val outlinecolor: Color by ColorSetting("Outline Color", Color.BLUE, allowAlpha = true).withDependency { outline }
     private val healthBar: Boolean by BooleanSetting("Health bar", description = "displays a health bar next to the target")
     private val style: Boolean by DualSetting("Style", left = "scale", right = "Object", default = false).withDependency { healthBar }
     private val expand: Double by NumberSetting("Expand", 0.0, -0.3, 2.0, 0.1, description = "Expand the health bar").withDependency { healthBar && style}
@@ -114,13 +116,13 @@ object TargetHud : Module(
             target?.entity?.isInvisible == false
             && (target?.isPlayer == true || entity !is EntityPlayer)
             )  {
-            if (!style) drawHealthBar(target?.entity ?: return, color) else
-                drawHealthBarInWorld(target?.entity!!, 4, expand, xShift)
+            if (!style) drawHealthBar(target?.entity ?: return) else
+                drawHealthBarInWorld(target?.entity ?: return, expand, xShift)
         }
         //if (followPlayer && target?.entity != null) drawTargetHudInWorld(target?.entity ?: return, outline, outlinecolor, color)
     }
 
-    fun healthString(entity: Entity): String {
+    private fun healthString(entity: Entity): String {
         val health = entity.health()
         val maxHealth = entity.maxHealth()
 
@@ -140,14 +142,20 @@ object TargetHud : Module(
         return "$colorHealth§r/§4${maxHealth.round(1)} §c❤ $winStatus"
     }
 
-    fun statusString(entity: Entity): String {
+    private fun statusString(entity: Entity): String {
         if (entity.isDead) return "§cDEAD"
         val returnString = StringBuilder()
         if (mc.thePlayer.canEntityBeSeen(entity) && entity is EntityPlayer) {
-            if (entity.isBurning) returnString.append("§cFIRE ")
-            if (entity.isBlocking) returnString.append("§eBLOCK ")
-            if (entity.isEating && entity.heldItem.item != null && entity.heldItem.item is ItemAppleGold && entity.heldItem.item != null) returnString.append("§6GAP ")
-            //if ((entity.itemInUse.item ?: returnString.append("")) is ItemBow) returnString.append("§fBOW ")
+            try {
+                if (entity.isBurning) returnString.append("§cFIRE ")
+                if (entity.isBlocking) returnString.append("§eBLOCK ")
+                if (entity.isEating && entity.heldItem.item is ItemAppleGold && entity.heldItem.item != null) returnString.append("§6GAP ")
+                //if ((entity.itemInUse.item ?: returnString.append("")) is ItemBow) returnString.append("§fBOW ")
+            } catch (e: Exception) {
+                if (e is NullPointerException) devMessage("Caught a Null Pointer Exception firing statusString") else
+                    devMessage("Caught an exception firing statusString")
+                e.printStackTrace()
+            }
         } else if (!mc.thePlayer.canEntityBeSeen(entity) && entity is EntityPlayer) return "§6NO SIGHT LINE"
         return returnString.toString()
     }

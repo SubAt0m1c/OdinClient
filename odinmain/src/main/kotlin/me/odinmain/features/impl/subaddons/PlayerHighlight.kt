@@ -104,8 +104,8 @@ object PlayerHighlight : Module(
 
         profile("health") { currentplayers.forEach {
             if ((!it.isInvisible || showinvis) && (!inTNTTag || !disableintnt) && (mc.thePlayer.canEntityBeSeen(it) || renderThrough) && healthBar) {
-                if (!style) SubRenderUtils.drawHealthBar(it, color) else
-                    drawHealthBarInWorld(it, 4, expand, xShift)
+                if (!style) SubRenderUtils.drawHealthBar(it) else
+                    drawHealthBarInWorld(it, expand, xShift)
             }
         }}
     }

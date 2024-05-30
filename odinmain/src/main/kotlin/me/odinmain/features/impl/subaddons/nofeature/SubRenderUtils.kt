@@ -1,10 +1,8 @@
 package me.odinmain.features.impl.subaddons.nofeature
 
 import me.odinmain.OdinMain.mc
-import me.odinmain.features.impl.subaddons.TargetHud.healthString
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.getTimer
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
-import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isPlayer
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
 import me.odinmain.utils.Vec3f
 import me.odinmain.utils.corners
@@ -15,15 +13,12 @@ import me.odinmain.utils.render.RenderUtils.getMatrix
 import me.odinmain.utils.render.RenderUtils.renderVec
 import me.odinmain.utils.render.RenderUtils.viewerVec
 import me.odinmain.utils.render.RenderUtils.worldToScreen
-import me.odinmain.utils.skyblock.modMessage
 import me.odinmain.utils.unaryMinus
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.network.NetworkPlayerInfo
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.Vec3
 import org.lwjgl.opengl.GL11
 import kotlin.math.max
 import kotlin.math.min
@@ -133,7 +128,7 @@ object SubRenderUtils {
         GL11.glPopAttrib()
     } */
 
-    fun drawHealthBar(targetEntity: Entity, outlinecolor: Color) {
+    fun drawHealthBar(targetEntity: Entity) {
         val mvMatrix = getMatrix(2982)
         val projectionMatrix = getMatrix(2983)
         val bb = targetEntity.entityBoundingBox.offset(-targetEntity.positionVector).offset(targetEntity.renderVec).offset(-viewerVec)
@@ -170,7 +165,7 @@ object SubRenderUtils {
         }
 
         if ((box.x > 0f && box.y > 0f && box.x <= mc.displayWidth && box.y <= mc.displayHeight) || (box.w > 0 && box.h > 0 && box.w <= mc.displayWidth && box.h <= mc.displayHeight)) {
-            roundedRectangle(box.x - hc(5), box.y - hc(8), hc(13), hc() + hc(7), outlinecolor, 0f)
+            roundedRectangle(box.x - hc(5), box.y - hc(8), hc(13), hc() + hc(7), Color.BLACK, 0f)
             roundedRectangle(box.x - hc(5) + hc(74), box.y + hc(74) - hc(8), hc(13)-hc(37), hc()-hc(37)+hc(7), color(targetEntity), 0f)
             roundedRectangle(box.x - hc(5) + hc(74), box.y + hc(74) - hc(8), hc(13)-hc(37), (hc()-hc(37)+hc(7)) * remainingHealth(targetEntity), Color.DARK_GRAY, 0f)
         }
@@ -185,8 +180,7 @@ object SubRenderUtils {
         GL11.glPopAttrib()
     }
 
-
-    fun drawHealthBarInWorld(e: Entity, type: Int, expand: Double, shift: Double) {
+    fun drawHealthBarInWorld(e: Entity, expand: Double, shift: Double) {
         if (e is EntityLivingBase) {
             val x =
                 e.lastTickPosX + (e.posX - e.lastTickPosX) * getTimer().renderPartialTicks.toDouble() - mc.renderManager.viewerPosX
@@ -197,31 +191,27 @@ object SubRenderUtils {
             val d = expand.toFloat() / 40.0f
 
             GlStateManager.pushMatrix()
-            val i: Int
-            if (type == 4) {
-                val a = (e.health() / e.maxHealth()).toDouble()
-                val o = if (a > 1) ((a - 1)%(1)) else 0.0
-                val r = (min(1.0, a))
-                fun ht(b: Double) : Int { return (74.0 * b).toInt() }
-
-                val hc: Int = when {
-                    r < 0.3 -> Color.RED.rgba
-                    r < 0.5 -> Color.ORANGE.rgba
-                    r < 0.7 -> Color.YELLOW.rgba
-                    r < 1 -> Color.GREEN.rgba
-                    else -> Color.DARK_GREEN.rgba
-                }
-                GL11.glTranslated(x, y - 0.2, z)
-                GL11.glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
-                GlStateManager.disableDepth()
-                GL11.glScalef(0.03f + d, 0.03f + d, 0.03f + d)
-                i = (21.0 + shift * 2.0).toInt()
-                Gui.drawRect(i, -1, i + 5, 75, Color.BLACK.rgba)
-                Gui.drawRect(i + 1, ht(r), i + 4, 74, Color.DARK_GRAY.rgba)
-                Gui.drawRect(i + 1, 0, i + 4, ht(r), hc)
-                Gui.drawRect(i + 1, 74, i + 4, 74-ht(o), Color.BLUE.rgba)
-                GlStateManager.enableDepth()
+            val hp = (e.health() / e.maxHealth()).toDouble()
+            val op = if (hp > 1) ((hp - 1)%(1)) else 0.0
+            val nohp = (min(1.0, hp))
+            fun ht(b: Double) : Int { return (74.0 * b).toInt() }
+            val hc: Int = when {
+                nohp < 0.3 -> Color.RED.rgba
+                nohp < 0.5 -> Color.ORANGE.rgba
+                nohp < 0.7 -> Color.YELLOW.rgba
+                nohp < 1 -> Color.GREEN.rgba
+                else -> Color.DARK_GREEN.rgba
             }
+            GL11.glTranslated(x, y - 0.2, z)
+            GL11.glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
+            GlStateManager.disableDepth()
+            GL11.glScalef(0.03f + d, 0.03f + d, 0.03f + d)
+            val i = (21.0 + shift * 2.0).toInt()
+            Gui.drawRect(i, -1, i + 5, 75, Color.BLACK.rgba)
+            Gui.drawRect(i + 1, ht(nohp), i + 4, 74, Color.DARK_GRAY.rgba)
+            Gui.drawRect(i + 1, 0, i + 4, ht(nohp), hc)
+            Gui.drawRect(i + 1, 74, i + 4, 74-ht(op), Color.BLUE.rgba)
+            GlStateManager.enableDepth()
             GlStateManager.popMatrix()
         }
     }

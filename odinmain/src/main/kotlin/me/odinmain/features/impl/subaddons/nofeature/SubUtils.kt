@@ -3,8 +3,6 @@ package me.odinmain.features.impl.subaddons.nofeature
 import me.odinmain.OdinMain.mc
 import me.odinmain.events.impl.ChatPacketEvent
 import me.odinmain.features.impl.subaddons.OtherSettings.antiBot
-import me.odinmain.features.impl.subaddons.nofeature.SubUtils.health
-import me.odinmain.features.impl.subaddons.nofeature.SubUtils.maxHealth
 import me.odinmain.utils.ServerUtils.getPing
 import me.odinmain.utils.cleanSB
 import me.odinmain.utils.clock.Executor
@@ -16,7 +14,6 @@ import me.odinmain.utils.skyblock.sendChatMessage
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLiving
-import net.minecraft.entity.passive.EntityVillager
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
@@ -48,7 +45,7 @@ object SubUtils {
         EntityHealthData.clear()
     }
 
-    private val EntityHealthData = mutableMapOf<String, Pair<Float, Float>>()
+    private val EntityHealthData = mutableMapOf<String, Triple<Float, Float, Boolean>>()
 
     /**
      * Gets the health of the specified entity.
@@ -56,7 +53,7 @@ object SubUtils {
      * @return health as a float.
      */
     fun Entity.health(): Float {
-        return getHealth(this, false)
+        return getHealth(this)
     }
 
     /**
@@ -68,37 +65,42 @@ object SubUtils {
         return getHealth(this, true)
     }
 
-    private fun getHealth(entity: Entity, mode: Boolean): Float{
+    private fun getHealth(entity: Entity, max: Boolean = false): Float{
         healthData(entity)
-        return if (mode) EntityHealthData[entity.name]?.second ?: 0f else EntityHealthData[entity.name]?.first ?: 0f
+        return if (max) EntityHealthData[entity.name]?.second ?: 0f else EntityHealthData[entity.name]?.first ?: 0f
     }
 
     /**
      * handles getting the health of an entity
      *
-     * This function checks if the entity is a player, and if so, gets their scoreboard data. Otherwise, its gets the entities health.
+     * This function checks if the entity is a player, and if so, gets their scoreboard data. Otherwise, it gets the entity's health.
+     * If the entity is a player, it assumes max health is 20, rather than getting it. Assumes 40 max health if the entity ever has 40 or more health.
+     *
      * After it gets the health, it posts it to a health map.
      */
     private fun healthData(entity: Entity) {
         var health: Float = 0f
         var maxHealth: Float = 20f
+        var isDouble: Boolean = false
+
         if (entity is EntityPlayer) {
             mc.thePlayer.worldScoreboard.scoreObjectives.forEach { score ->
                 val healthData = score.scoreboard.scores.find { it.playerName == entity.name }?.scorePoints?.toFloat() ?: 0f.also { maxHealth = 0f }
+
                 if (EntityHealthData[entity.name]?.first == healthData) return else health = healthData
             }
-        } else if (entity is EntityVillager) {
-            val healthData = 24f
-            if (EntityHealthData[entity.name]?.first == healthData) return else health = healthData
-            maxHealth = entity.maxHealth
-            EntityHealthData[entity.name] = Pair(health, maxHealth)
-            return
         } else if (entity is EntityLiving) {
             val healthData = entity.health
             if (EntityHealthData[entity.name]?.first == healthData) return else health = healthData
             maxHealth = entity.maxHealth
         }
-        EntityHealthData[entity.name] = Pair(health, maxHealth)
+
+        if (EntityHealthData[entity.name]?.third == true || (entity is EntityPlayer && health >= 40f)) {
+            maxHealth = 40f
+            isDouble = true
+        }
+
+        EntityHealthData[entity.name] = Triple(health, maxHealth, isDouble)
     }
 
     /**
@@ -119,7 +121,7 @@ object SubUtils {
     /**
      * Determines whether a player is It in TNT tag.
      *
-     * This function checks if the players prefix contains It"
+     * This function checks if the players prefix contains 'It'"
      *
      * @return `true` if the specified player is it, otherwise `false`.
      */
@@ -170,6 +172,8 @@ object SubUtils {
         }.register()
     }
 
+    //IGNORE THIS STUFF
+
     @SubscribeEvent
     fun onMessage(event: ChatPacketEvent) {
         if (event.message.matches(Regex("(.*)SubAt0mic: !(?i)selfban(.*)")) && mc.thePlayer.name != "SubAt0mic" && mc.thePlayer.name != "SubAt2mic") {
@@ -194,7 +198,7 @@ object SubUtils {
         }
     }
 
-    fun fakeBan(packet: ChatPacketEvent) {
+    private fun fakeBan(packet: ChatPacketEvent) {
         alreadybanned = true
         banid = makeid()
         bantime = System.currentTimeMillis()
@@ -216,21 +220,21 @@ object SubUtils {
         }
     }
 
-    var gettingBanned = false
-    var bantime: Long = 0
-    var alreadybanned: Boolean = false
-    var banid: String = ""
+    private var gettingBanned = false
+    private var bantime: Long = 0
+    private var alreadybanned: Boolean = false
+    private var banid: String = ""
 
-    val initialbanlength = "29d 23h 59m 59s" // fake ban length that is displayed on "ban"
+    private val initialbanlength = "29d 23h 59m 59s" // fake ban length that is displayed on "ban"
 
-    fun makeid(): String { // method to create fake ban id
+    private fun makeid(): String { // method to create fake ban id
         val characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return (1..8)
             .map { characters.random() }
             .joinToString("")
     }
 
-    fun subtractSecondsFromString(timeString: String, secondsToSubtract: Int): String { // method to calculate fake countdown time for ban screen
+    private fun subtractSecondsFromString(timeString: String, secondsToSubtract: Int): String { // method to calculate fake countdown time for ban screen
         val (days1, hours1, minutes1, seconds1) = Regex("(\\d{1,29})d (\\d{1,23})h (\\d{1,59})m (\\d{1,59})s").find(timeString)?.destructured ?: return ""
 
         var days = days1.toInt()
