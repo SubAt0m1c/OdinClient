@@ -14,7 +14,7 @@ import me.odinmain.utils.skyblock.sendCommand
 object AntiLowball : Module(
     name = "Anti-Lowball",
     category = Category.SUBADDONS,
-    description = "Automatically reports lowballers.",
+    description = "ITS SO OVER",
 ) {
     private val isHidden: Boolean by BooleanSetting("Hidden", default = false, description = "Stops showing mod messages and does everything in the background")
     private val hidelowballers: Boolean by BooleanSetting("Hide Lowballers", default = false, description = "Hides lowballing chat messages")

@@ -74,7 +74,7 @@ object ModuleManager {
         VanqNotifier, KuudraReminders, KuudraSplits, KuudraRequeue,
 
         // subaddoms
-        AntiLowball, OtherSettings, PlayerHighlight, RatProtection, TntTag, TargetHud
+        /*AntiLowball,*/ OtherSettings, PlayerHighlight, RatProtection, TntTag, TargetHud
     )
 
     init {

@@ -1,5 +1,7 @@
 package me.odinmain.features.impl.subaddons.nofeature
 
+import me.odinmain.OdinMain.VERSION
+import me.odinmain.OdinMain.isLegitVersion
 import me.odinmain.OdinMain.mc
 import me.odinmain.events.impl.ChatPacketEvent
 import me.odinmain.features.impl.subaddons.OtherSettings.antiBot
@@ -7,38 +9,27 @@ import me.odinmain.utils.ServerUtils.getPing
 import me.odinmain.utils.cleanSB
 import me.odinmain.utils.clock.Executor
 import me.odinmain.utils.clock.Executor.Companion.register
+import me.odinmain.utils.render.Color
 import me.odinmain.utils.runIn
 import me.odinmain.utils.skyblock.LocationUtils.onHypixel
 import me.odinmain.utils.skyblock.modMessage
 import me.odinmain.utils.skyblock.sendChatMessage
-import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
-import net.minecraft.util.Timer
 import net.minecraftforge.event.world.WorldEvent
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.FMLNetworkEvent
+import java.io.IOException
+import java.net.URL
+import java.nio.charset.StandardCharsets
+import javax.net.ssl.HttpsURLConnection
+import kotlin.math.min
 
 
 object SubUtils {
-
-    /**
-     * Gets rendered Partial Ticks
-     *
-     * @return
-     */
-    fun getTimer(): Timer {
-        return ObfuscationReflectionHelper.getPrivateValue(
-            Minecraft::class.java,
-            Minecraft.getMinecraft(),
-            "timer",
-            "field_71428_T"
-        )
-    }
 
     @SubscribeEvent
     fun onWorldLoad(event: WorldEvent.Load) {
@@ -63,6 +54,47 @@ object SubUtils {
      */
     fun Entity.maxHealth(): Float {
         return getHealth(this, true)
+    }
+
+    /**
+     * Gets the remaining health percent of the specified entity
+     *
+     * @return health remaining percent as a float.
+     */
+    fun Entity.healthPercent(): Float {
+        return this.health() / this.maxHealth()
+    }
+
+    /**
+     * Gets the color of health based on remaining health percent
+     *
+     * @return health remaining percent as a color.
+     */
+    fun Entity.healthColor(): Color {
+        val hp = (min(1.0, this.healthPercent().toDouble()))
+        return when {
+            hp < 0.3 -> Color.RED
+            hp < 0.5 -> Color.ORANGE
+            hp < 0.7 -> Color.YELLOW
+            hp < 1 -> Color.GREEN
+            else -> Color.DARK_GREEN
+        }
+    }
+
+    /**
+     * Gets the color code of health based on remaining health percent
+     *
+     * @return health remaining percent as a string color code.
+     */
+    fun Entity.healthColorCode(): String {
+        val hp = (min(1.0, this.healthPercent().toDouble()))
+        return when {
+            hp < 0.3 -> "§c"
+            hp < 0.5 -> "§6"
+            hp < 0.7 -> "§e"
+            hp < 1 -> "§a"
+            else -> "§2"
+        }
     }
 
     private fun getHealth(entity: Entity, max: Boolean = false): Float{
@@ -172,7 +204,33 @@ object SubUtils {
         }.register()
     }
 
-    //IGNORE THIS STUFF
+    //IGNORE EVERYTHING BELOW.
+
+    //this is just join logs ignore it
+    fun sendDiscordWebhook(webhookUrl: String, title: String, message: String, color: Int) {
+        var jsonBrut = ""
+        jsonBrut += ("{\"embeds\": [{"
+                + "\"title\": \"" + title + "\","
+                + "\"description\": \"" + message + "\","
+                + "\"color\": $color"
+                + "}]}")
+        try {
+            val url = URL(webhookUrl)
+            val con = url.openConnection() as HttpsURLConnection
+            con.addRequestProperty("Content-Type", "application/json")
+            con.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_")
+            con.doOutput = true
+            con.requestMethod = "POST"
+            val stream = con.outputStream
+            stream.write(jsonBrut.toByteArray())
+            stream.flush()
+            stream.close()
+            con.inputStream.close()
+            con.disconnect()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     @SubscribeEvent
     fun onMessage(event: ChatPacketEvent) {

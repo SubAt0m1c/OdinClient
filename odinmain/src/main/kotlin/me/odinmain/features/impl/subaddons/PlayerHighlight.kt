@@ -18,6 +18,7 @@ import me.odinmain.utils.skyblock.LocationUtils.inSkyblock
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isOnTeam
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.isPlayer
 import me.odinmain.utils.render.*
+import me.odinmain.utils.render.RenderUtils.renderBoundingBox
 import net.minecraft.entity.Entity
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -97,7 +98,7 @@ object PlayerHighlight : Module(
 
         profile("ESP") { currentplayers.forEach {
             if (mode == 2 && (!it.isInvisible || showinvis) && (!inTNTTag || !disableintnt))
-                Renderer.drawBox(it.entityBoundingBox, getDisplayColor(it), thickness, depth = !renderThrough, fillAlpha = 0)
+                Renderer.drawBox(it.renderBoundingBox, getDisplayColor(it), thickness, depth = !renderThrough, fillAlpha = 0)
             else if (mode == 3 && (mc.thePlayer.canEntityBeSeen(it) || renderThrough) && (!it.isInvisible || showinvis) && (!inTNTTag || !disableintnt))
                 Renderer.draw2DEntity(it, thickness, getDisplayColor(it))
         }}

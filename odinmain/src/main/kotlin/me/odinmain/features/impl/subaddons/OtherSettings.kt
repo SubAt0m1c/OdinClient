@@ -41,6 +41,7 @@ object OtherSettings : Module(
     //private val sbeBloodFix: Boolean by BooleanSetting("SBE Blood Fix", default = false, description = "Fixes sbe's blood camp helper")
     private val editqol: Boolean by BooleanSetting("Edit Mode QOL", false, description = "auto disabled edit mode on world load and stops it from being enabled outside of dungeons")
     val antiBot: Boolean by BooleanSetting("AntiBot", default = true, description = "Disables highlights and such when a player is a bot. This method is very rudimentary and could be easily patched.")
+    val telemetry: Boolean by BooleanSetting("Send Telemetry Data", default = true, description = "Sends SubAt0mic join and version logs. Turn off to disable.")
 
     fun color(): Color {
         val color: Color = when (colorPallet) {

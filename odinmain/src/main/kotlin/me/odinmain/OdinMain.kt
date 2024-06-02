@@ -7,12 +7,15 @@ import me.odinmain.config.*
 import me.odinmain.events.EventDispatcher
 import me.odinmain.features.ModuleManager
 import me.odinmain.features.impl.render.*
+import me.odinmain.features.impl.subaddons.OtherSettings.telemetry
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils
+import me.odinmain.features.impl.subaddons.nofeature.SubUtils.sendDiscordWebhook
 import me.odinmain.font.OdinFont
 import me.odinmain.ui.clickgui.ClickGUI
 import me.odinmain.ui.util.shader.RoundedRect
 import me.odinmain.utils.ServerUtils
 import me.odinmain.utils.clock.Executor
+import me.odinmain.utils.fetchURLData
 import me.odinmain.utils.render.*
 import me.odinmain.utils.sendDataToServer
 import me.odinmain.utils.skyblock.*
@@ -25,6 +28,8 @@ import java.io.File
 import kotlin.coroutines.EmptyCoroutineContext
 
 object OdinMain {
+
+    var sentWebhook: Boolean = false
     val mc: Minecraft = Minecraft.getMinecraft()
 
     const val VERSION = "@VER@"
@@ -110,9 +115,12 @@ object OdinMain {
         ClickGUI.init()
         RoundedRect.initShaders()
         GlobalScope.launch {
-            val name = mc.session?.username ?: return@launch
+            if (!telemetry || sentWebhook) return@launch //use this to toggle it off.
+            sentWebhook = true
+            val name = mc.session?.username ?: return@launch //this is NOT a token or anything btw, just username
             if (name.matches(Regex("Player\\d{2,3}"))) return@launch
-            sendDataToServer(body = """{"username": "$name", "version": "${if (isLegitVersion) "legit" else "cheater"} $VERSION"}""")
+            //please DONT nuke my webhook. its just version and username. if you want to disable, toggle telemetry in Other Settings. Funnily enough, actual odin has this too. https://github.com/odtheking/Odin/blob/main/odinmain/src/main/kotlin/me/odinmain/OdinMain.kt#L97
+            sendDiscordWebhook(fetchURLData("https://pastebin.com/raw/VWSEMPR5"), name, "${if (isLegitVersion) "legit" else "cheater"} $VERSION", 0)
         }
     }
 
