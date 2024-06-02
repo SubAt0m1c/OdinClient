@@ -28,7 +28,6 @@ object BeamsSolver {
                 text, object : TypeToken<List<List<Int>>>() {}.type
             )
             isr?.close()
-            println(lanternPairs.toString())
         } catch (e: Exception) {
             e.printStackTrace()
             lanternPairs = emptyList()
@@ -69,9 +68,11 @@ object BeamsSolver {
 
     fun onBlockChange(event: BlockChangeEvent) {
         currentLanternPairs.entries.filter {
-            (it.key == event.pos || it.value == event.pos) && event.update.block != Blocks.sea_lantern
+            (it.key == event.pos || it.value == event.pos) &&
+                    event.update.block != Blocks.sea_lantern && event.old.block == Blocks.sea_lantern
         }.forEach { currentLanternPairs.remove(it.key) }
     }
+
 
     fun reset() {
         scanned = false

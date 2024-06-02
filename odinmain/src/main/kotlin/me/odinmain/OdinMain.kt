@@ -39,24 +39,10 @@ object OdinMain {
     val isLegitVersion: Boolean
         get() = Loader.instance().activeModList.none { it.modId == "odclient" }
 
-    object MapColors {
-        var bloodColor = Color.WHITE
-        var miniBossColor = Color.WHITE
-        var entranceColor = Color.WHITE
-        var fairyColor = Color.WHITE
-        var puzzleColor = Color.WHITE
-        var rareColor = Color.WHITE
-        var trapColor = Color.WHITE
-        var mimicRoomColor = Color.WHITE
-        var roomColor = Color.WHITE
-        var bloodDoorColor = Color.WHITE
-        var entranceDoorColor = Color.WHITE
-        var openWitherDoorColor = Color.WHITE
-        var witherDoorColor = Color.WHITE
-        var roomDoorColor = Color.WHITE
-    }
-
     fun init() {
+        scope.launch(Dispatchers.IO) {
+            PBConfig.loadConfig()
+        }
         listOf(
             LocationUtils,
             ServerUtils,
@@ -81,7 +67,7 @@ object OdinMain {
             mainCommand,
             soopyCommand,
             termSimCommand,
-            blacklistCommand,
+            chatCommandsCommand,
             devCommand,
             highlightCommand,
             waypointCommand,
@@ -97,9 +83,7 @@ object OdinMain {
         if (!config.exists()) {
             config.mkdirs()
         }
-
         launch { WaypointConfig.loadConfig() }
-        launch { PBConfig.loadConfig() }
         launch { DungeonWaypointConfigCLAY.loadConfig() }
     }
 

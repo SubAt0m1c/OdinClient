@@ -7,9 +7,7 @@ import me.odinmain.features.Category
 import me.odinmain.features.Module
 import me.odinmain.features.impl.dungeon.DungeonRequeue.disableRequeue
 import me.odinmain.features.settings.Setting.Companion.withDependency
-import me.odinmain.features.settings.impl.BooleanSetting
-import me.odinmain.features.settings.impl.DropdownSetting
-import me.odinmain.features.settings.impl.ListSetting
+import me.odinmain.features.settings.impl.*
 import me.odinmain.utils.*
 import me.odinmain.utils.skyblock.*
 import net.minecraft.event.ClickEvent
@@ -27,6 +25,7 @@ object ChatCommands : Module(
     private var guild: Boolean by BooleanSetting(name = "Guild commands", default = true, description = "Toggles chat commands in guild chat")
     private var private: Boolean by BooleanSetting(name = "Private commands", default = true, description = "Toggles chat commands in private chat")
     private var showSettings: Boolean by DropdownSetting(name = "Show Settings", default = false)
+    private val whitelistOnly: Boolean by BooleanSetting("Whitelist Only", default = false, description = "Only lets users in whitelist run chat commands.")
 
     private var warp: Boolean by BooleanSetting(name = "Warp", default = true).withDependency { showSettings }
     private var warptransfer: Boolean by BooleanSetting(name = "Warp & pt (warptransfer)", default = true).withDependency { showSettings }
@@ -52,6 +51,7 @@ object ChatCommands : Module(
     private var dtPlayer: String? = null
     private val dtReason = mutableListOf<Pair<String, String>>()
     val blacklist: MutableList<String> by ListSetting("Blacklist", mutableListOf())
+    val whitelist: MutableList<String> by ListSetting("WhiteList", mutableListOf())
 
     private fun getCatPic(): String {
         return try {
@@ -82,7 +82,7 @@ object ChatCommands : Module(
             else -> return
         } ?: return
 
-        if (isInBlacklist(ign)) return
+        if (isInBlacklist(ign) || (whitelistOnly && !isInWhitelist(ign))) return
 
         val msg = when (channel) {
             "party" -> partyRegex.matchEntire(message)?.groups?.get(3)?.value?.lowercase()
@@ -223,6 +223,9 @@ object ChatCommands : Module(
             dtReason.clear()
         }
     }
+
+    private fun isInWhitelist(name: String) =
+        whitelist.contains(name.lowercase())
 
     private fun isInBlacklist(name: String) =
         blacklist.contains(name.lowercase())

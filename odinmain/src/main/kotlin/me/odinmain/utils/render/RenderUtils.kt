@@ -420,6 +420,7 @@ object RenderUtils {
         scale(-scale, -scale, scale)
         GlStateManager.enableBlend()
         blendFactor()
+        GlStateManager.disableLighting()
 
         val textWidth = mc.fontRendererObj.getStringWidth(text)
 
@@ -429,6 +430,7 @@ object RenderUtils {
             GlStateManager.enableDepth()
             GlStateManager.depthMask(true)
         }
+        GlStateManager.enableLighting()
         GlStateManager.resetColor()
         GlStateManager.popMatrix()
     }
@@ -496,16 +498,23 @@ object RenderUtils {
      * @param width The width of the rectangle.
      * @param height The height of the rectangle.
      */
-    fun drawTexturedModalRect(x: Int, y: Int, width: Int, height: Int) {
+    fun drawTexturedModalRect(
+        x: Int, y: Int, width: Int, height: Int,
+        u: Float = 0f, v: Float = 0f, uWidth: Int = 1, vHeight: Int = 1,
+        tileWidth: Float = 1.0f, tileHeight: Float = 1.0f
+    ) {
+        val f = 1.0f / tileWidth
+        val g = 1.0f / tileHeight
         Color.WHITE.bind()
         worldRenderer {
             begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
-            pos(x.toDouble(), (y + height).toDouble(), 0.0).tex(0.0, 1.0).endVertex()
-            pos((x + width).toDouble(), (y + height).toDouble(), 0.0).tex(1.0, 1.0).endVertex()
-            pos((x + width).toDouble(), y.toDouble(), 0.0).tex(1.0, 0.0).endVertex()
-            pos(x.toDouble(), y.toDouble(), 0.0).tex(0.0, 0.0).endVertex()
+            pos(x.toDouble(), (y + height).toDouble(), 0.0).tex((u * f).toDouble(), ((v + vHeight.toFloat()) * g).toDouble()).endVertex()
+            pos((x + width).toDouble(), (y + height).toDouble(), 0.0).tex(((u + uWidth.toFloat()) * f).toDouble(), ((v + vHeight.toFloat()) * g).toDouble()).endVertex()
+            pos((x + width).toDouble(), y.toDouble(), 0.0).tex(((u + uWidth.toFloat()) * f).toDouble(), (v * g).toDouble()).endVertex()
+            pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * g).toDouble()).endVertex()
         }
         tessellator.draw()
+        GlStateManager.resetColor()
     }
 
 
@@ -653,8 +662,8 @@ object RenderUtils {
         GlStateManager.pushMatrix()
         GlStateManager.enableBlend()
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
-        GlStateManager.translate(x, y, 0f)
-        GlStateManager.scale(scale, scale, scale)
+        translate(x, y, 0f)
+        scale(scale, scale, scale)
         color.bind()
         var yOffset = y - mc.fontRendererObj.FONT_HEIGHT
         text.split("\n").forEach {
