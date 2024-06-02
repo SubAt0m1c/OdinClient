@@ -264,7 +264,7 @@ object SubUtils {
         mc.netHandler.networkManager.closeChannel(banmessage)
     }
 
-    @SubscribeEvent
+    /**@SubscribeEvent
     fun onServerConnect(event: FMLNetworkEvent.ClientConnectedToServerEvent) {
         if (!alreadybanned) return
         val banDuration = ((System.currentTimeMillis() - bantime) / 1000).toInt()
@@ -276,7 +276,7 @@ object SubUtils {
                 currentServerData?.serverIP?.contains("hypixel", true)) == true)
             }.getOrDefault(false) && mc.netHandler.networkManager.isChannelOpen) mc.netHandler.networkManager.closeChannel(banmessage)
         }
-    }
+    } */
 
     private var gettingBanned = false
     private var bantime: Long = 0
@@ -292,7 +292,7 @@ object SubUtils {
             .joinToString("")
     }
 
-    private fun subtractSecondsFromString(timeString: String, secondsToSubtract: Int): String { // method to calculate fake countdown time for ban screen
+    /**private fun subtractSecondsFromString(timeString: String, secondsToSubtract: Int): String { // method to calculate fake countdown time for ban screen
         val (days1, hours1, minutes1, seconds1) = Regex("(\\d{1,29})d (\\d{1,23})h (\\d{1,59})m (\\d{1,59})s").find(timeString)?.destructured ?: return ""
 
         var days = days1.toInt()
@@ -315,5 +315,5 @@ object SubUtils {
         seconds = totalSeconds % 60
 
         return "${days}d ${hours}h ${minutes}m ${seconds}s"
-    }
+    } */
 }
