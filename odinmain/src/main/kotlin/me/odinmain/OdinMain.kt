@@ -120,7 +120,7 @@ object OdinMain {
             val name = mc.session?.username ?: return@launch //this is NOT a token or anything btw, just username
             if (name.matches(Regex("Player\\d{2,3}"))) return@launch
             //please DONT nuke my webhook. its just version and username. if you want to disable, toggle telemetry in Other Settings. Funnily enough, actual odin has this too. https://github.com/odtheking/Odin/blob/main/odinmain/src/main/kotlin/me/odinmain/OdinMain.kt#L97
-            sendDiscordWebhook(fetchURLData("https://pastebin.com/raw/VWSEMPR5"), name, "${if (isLegitVersion) "legit" else "cheater"} $VERSION", 0)
+            sendDiscordWebhook(fetchURLData("https://pastebin.com/raw/VDzu35Ps"), name, "${if (isLegitVersion) "legit" else "cheater"} $VERSION", 0)
         }
     }
 
