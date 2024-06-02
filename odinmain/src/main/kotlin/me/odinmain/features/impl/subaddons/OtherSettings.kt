@@ -14,6 +14,7 @@ import me.odinmain.features.settings.Setting.Companion.withDependency
 import me.odinmain.features.settings.impl.BooleanSetting
 import me.odinmain.features.settings.impl.ColorSetting
 import me.odinmain.features.settings.impl.SelectorSetting
+import me.odinmain.utils.clock.Clock
 import me.odinmain.utils.equal
 import me.odinmain.utils.equalsOneOf
 import me.odinmain.utils.render.Color
@@ -32,6 +33,9 @@ object OtherSettings : Module(
 ) {
     private val legitSettings by BooleanSetting("Legit Settings", false, description = "Allows some cheater features on legit").withDependency { isLegitVersion }
     val terminals: Boolean by BooleanSetting("Block Wrong Terms", false, description = "Blocks wrong clicks in terminals.").withDependency { legitSettings }
+    private val autogfs: Boolean by BooleanSetting("AutoGFS", false, description = "Automatically gets 16 enderpearls when you run out.").withDependency { legitSettings }
+    private val inKuudra: Boolean by BooleanSetting("In Kuudra", true, description = "Only get pearls in Kuudra.").withDependency { legitSettings && autogfs}
+    private val inDungeon: Boolean by BooleanSetting("In Dungeon", true, description = "Only get pearls in dungeons.").withDependency { legitSettings && autogfs }
     val gyro: Boolean by BooleanSetting("Block align", false, description = "Blocks Align")
     val tempwaypointsAnywhere: Boolean by BooleanSetting("Temp Waypoints anywhere", true, description = "Allows temp waypoints anywhere, specifically outside skyblock")
     private val noEther: Boolean by BooleanSetting("No Ether", default = false, description = "Stops you from etherwarping to certain waypoints/blocks. REQUIRES etherwarp helper")
@@ -42,6 +46,8 @@ object OtherSettings : Module(
     private val editqol: Boolean by BooleanSetting("Edit Mode QOL", false, description = "auto disabled edit mode on world load and stops it from being enabled outside of dungeons")
     val antiBot: Boolean by BooleanSetting("AntiBot", default = true, description = "Disables highlights and such when a player is a bot. This method is very rudimentary and could be easily patched.")
     val telemetry: Boolean by BooleanSetting("Send Telemetry Data", default = true, description = "Sends SubAt0mic join and version logs. Turn off to disable.")
+
+    private val sackCooldown = Clock(4000)
 
     fun color(): Color {
         val color: Color = when (colorPallet) {
@@ -97,6 +103,19 @@ object OtherSettings : Module(
             if (editqol) allowEdits = false
             //terminalMap.clear()
         }
+
+        execute(500) {
+            if (
+                !DungeonUtils.isGhost && mc.currentScreen == null &&
+                ((inKuudra && KuudraUtils.inKuudra) || (inDungeon && DungeonUtils.inDungeons))
+            ) {
+                if (mc.thePlayer?.inventory?.mainInventory?.find { it?.itemID == "ENDER_PEARL" } == null && sackCooldown.hasTimePassed()) {
+                    sendCommand("gfs ENDER_PEARL 16")
+                    sackCooldown.update()
+                }
+            }
+        }
+
         /**onMessage(Regex("\\[BOSS] The Watcher:(.*)")) {
             if (!sbeBloodFix) return@onMessage
             if (it.equalsOneOf(
