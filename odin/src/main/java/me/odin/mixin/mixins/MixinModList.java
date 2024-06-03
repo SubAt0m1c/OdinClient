@@ -21,7 +21,7 @@ public class MixinModList {
 
     @Inject(method = "<init>(Ljava/util/List;)V", at = @At("RETURN"))
     private void removeMod(List<ModContainer> modList, CallbackInfo ci) {
-        if (Minecraft.getMinecraft().isIntegratedServerRunning()) return;
-        this.modTags.entrySet().removeIf(mod -> !mod.getKey().equalsIgnoreCase("fml") && !mod.getKey().equalsIgnoreCase("forge") && !mod.getKey().equalsIgnoreCase("mcp"));
+        if (Minecraft.getMinecraft().isSingleplayer()) return;
+        this.modTags.keySet().removeIf(c -> !c.matches("FML|Forge|mcp"));
     }
 }
