@@ -197,10 +197,9 @@ Category: Kuudra
 - Fresh Timer: Shows the time until fresh timer.
 
 Category: SubAddons
-- AntiLowball: Automatically reports lowballers, with options to hide all functions, or change the style of messages.
 - Player Highlight: Highlights players based on team, can also display the player's health in a bar to the left of them.
 - Rat Protection: Prevents the user from being logged while online.
-- Various Other Settings: Cancelling wrong clicks on legit, blocking etherwarp to certain waypoints (With an option for compatibility with Funny Map Extras), SBE blood fix, and more.
+- Various Other Settings: Cancelling wrong clicks on legit auto gfs on legit, blocking etherwarp to certain waypoints (With an option for compatibility with Funny Map Extras), SBE blood fix, and more.
 - TNT Tag: Player highlight for tnt tag specifically, and a hud for the explosion.
 - Target Hud: Displays a hud element with various information on the opponent youre fighting.
 
