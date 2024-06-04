@@ -42,10 +42,10 @@ object DungeonWaypoints : Module(
     var filled: Boolean by BooleanSetting("Filled", false, description = "If the next waypoint you place should be 'filled'.")
     var throughWalls: Boolean by BooleanSetting("Through walls", false, description = "If the next waypoint you place should be visible through walls.")
     var useBlockSize: Boolean by BooleanSetting("Use block size", false, description = "Use the size of the block you click for waypoint size.")
-    var size: Double by NumberSetting("Size", 1.0, 0, 1.0, increment = 0.01, description = "The size of the next waypoint you place.").withDependency { !useBlockSize }
-    var xOffset: Double by NumberSetting("X offset", 0, -1, 1.0, increment = 0.01, description = "The size of the next waypoint you place.").withDependency { !useBlockSize }
-    var yOffset: Double by NumberSetting("Y offset", 0, -1, 1.0, increment = 0.01, description = "The size of the next waypoint you place.").withDependency { !useBlockSize }
-    var zOffset: Double by NumberSetting("Z offset", 0, -1, 1.0, increment = 0.01, description = "The size of the next waypoint you place.").withDependency { !useBlockSize }
+    var size: Double by NumberSetting("Size", 1.0, 0.0, 1.0, increment = 0.01, description = "The size of the next waypoint you place.").withDependency { !useBlockSize }
+    var xOffset: Double by NumberSetting("X offset", 0.0, -1.0, 1.0, increment = 0.01, description = "The size of the next waypoint you place.").withDependency { !useBlockSize }
+    var yOffset: Double by NumberSetting("Y offset", 0.0, -1.0, 1.0, increment = 0.01, description = "The size of the next waypoint you place.").withDependency { !useBlockSize }
+    var zOffset: Double by NumberSetting("Z offset", 0.0, -1.0, 1.0, increment = 0.01, description = "The size of the next waypoint you place.").withDependency { !useBlockSize }
 
     private val disableDepth: Boolean by BooleanSetting("Disable Depth", false, description = "Disables depth testing for waypoints.")
     private val resetButton: () -> Unit by ActionSetting("Reset Current Room") {
