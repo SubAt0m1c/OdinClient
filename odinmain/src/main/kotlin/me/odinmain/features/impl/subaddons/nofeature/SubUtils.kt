@@ -1,35 +1,112 @@
 package me.odinmain.features.impl.subaddons.nofeature
 
-import me.odinmain.OdinMain.VERSION
-import me.odinmain.OdinMain.isLegitVersion
 import me.odinmain.OdinMain.mc
-import me.odinmain.events.impl.ChatPacketEvent
 import me.odinmain.features.impl.subaddons.OtherSettings.antiBot
 import me.odinmain.utils.ServerUtils.getPing
 import me.odinmain.utils.cleanSB
 import me.odinmain.utils.clock.Executor
 import me.odinmain.utils.clock.Executor.Companion.register
 import me.odinmain.utils.render.Color
-import me.odinmain.utils.runIn
 import me.odinmain.utils.skyblock.LocationUtils.onHypixel
-import me.odinmain.utils.skyblock.modMessage
-import me.odinmain.utils.skyblock.sendChatMessage
+import net.minecraft.block.Block
+import net.minecraft.block.material.Material
+import net.minecraft.client.multiplayer.PlayerControllerMP
+import net.minecraft.enchantment.Enchantment
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.item.ItemStack
+import net.minecraft.potion.Potion
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.network.FMLNetworkEvent
-import java.io.IOException
+import net.minecraftforge.fml.relauncher.ReflectionHelper
+import java.lang.reflect.Field
 import java.net.URL
-import java.nio.charset.StandardCharsets
 import javax.net.ssl.HttpsURLConnection
 import kotlin.math.min
+import kotlin.math.pow
 
 
 object SubUtils {
+
+    fun curBlockDamageMP(): Field {
+        val curBlockDamageMP = ReflectionHelper.findField(PlayerControllerMP::class.java, "field_78770_f", "curBlockDamageMP")
+        curBlockDamageMP?.setAccessible(true)
+        return curBlockDamageMP
+    }
+
+    fun getBlockHardness(block: Block, itemStack: ItemStack?, ignoreSlow: Boolean, ignoreGround: Boolean): Float {
+        val getBlockHardness: Float = block.getBlockHardness(mc.theWorld, null)
+        if (getBlockHardness < 0.0f) {
+            return 0.0f
+        }
+        return if ((block.material.isToolNotRequired || (itemStack != null && itemStack.canHarvestBlock(block)))
+        ) (getToolDigEfficiency(
+            itemStack,
+            block,
+            ignoreSlow,
+            ignoreGround
+        ) / getBlockHardness / 30.0f) else (getToolDigEfficiency(
+            itemStack,
+            block,
+            ignoreSlow,
+            ignoreGround
+        ) / getBlockHardness / 100.0f)
+    }
+
+    fun getToolDigEfficiency(itemStack: ItemStack?, block: Block?, ignoreSlow: Boolean, ignoreGround: Boolean): Float {
+        var n = if ((itemStack == null)) 1.0f else itemStack.item.getStrVsBlock(itemStack, block)
+        if (n > 1.0f) {
+            val getEnchantmentLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, itemStack)
+            if (getEnchantmentLevel > 0 && itemStack != null) {
+                n += (getEnchantmentLevel * getEnchantmentLevel + 1).toFloat()
+            }
+        }
+        if (mc.thePlayer.isPotionActive(Potion.digSpeed)) {
+            n *= 1.0f + (mc.thePlayer.getActivePotionEffect(Potion.digSpeed).amplifier + 1) * 0.2f
+        }
+        if (!ignoreSlow) {
+            if (mc.thePlayer.isPotionActive(Potion.digSlowdown)) {
+                val n2 = when (mc.thePlayer.getActivePotionEffect(Potion.digSlowdown).amplifier) {
+                    0 -> {
+                        0.3f
+                    }
+
+                    1 -> {
+                        0.09f
+                    }
+
+                    2 -> {
+                        0.0027f
+                    }
+
+                    else -> {
+                        8.1E-4f
+                    }
+                }
+                n *= n2
+            }
+            if (mc.thePlayer.isInsideOfMaterial(Material.water) && !EnchantmentHelper.getAquaAffinityModifier(mc.thePlayer)) {
+                n /= 5.0f
+            }
+            if (!mc.thePlayer.onGround && !ignoreGround) {
+                n /= 5.0f
+            }
+        }
+        return n
+    }
+
+    fun rnd(n: Double, d: Int): Double {
+        if (d == 0) {
+            return Math.round(n).toDouble()
+        } else {
+            val p: Double = 10.0.pow(d.toDouble())
+            return Math.round(n * p).toDouble() / p
+        }
+    }
 
     @SubscribeEvent
     fun onWorldLoad(event: WorldEvent.Load) {
