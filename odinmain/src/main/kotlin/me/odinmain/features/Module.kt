@@ -169,6 +169,10 @@ abstract class Module(
         ModuleManager.worldLoadFunctions.add(func)
     }
 
+    fun onClientTick(func: () -> Unit) {
+        ModuleManager.clientTickFunctions.add(func)
+    }
+
     fun execute(delay: Long, profileName: String = this.name, func: Executable) {
         executors.add(this to Executor(delay, profileName, func))
     }

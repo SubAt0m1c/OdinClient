@@ -24,6 +24,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent
 
 /**
  * Class that contains all Modules and huds
@@ -45,6 +46,7 @@ object ModuleManager {
     val messageFunctions = mutableListOf<MessageFunction>()
     val cancellableMessageFunctions = mutableListOf<MessageFunctionCancellable>()
     val worldLoadFunctions = mutableListOf<() -> Unit>()
+    val clientTickFunctions = mutableListOf<() -> Unit>()
     val tickTasks = mutableListOf<TickTask>()
     val huds = arrayListOf<HudElement>()
     val executors = ArrayList<Pair<Module, Executor>>()
@@ -74,7 +76,7 @@ object ModuleManager {
         VanqNotifier, KuudraReminders, KuudraSplits, KuudraRequeue,
 
         // subaddoms
-        /*AntiLowball,*/ OtherSettings, PlayerHighlight, RatProtection, TntTag, TargetHud, BreakProgress
+        /*AntiLowball,*/ OtherSettings, PlayerHighlight, RatProtection, TntTag, TargetHud, BreakProgress, AntiCheat
     )
 
     init {
@@ -134,6 +136,12 @@ object ModuleManager {
     fun onWorldLoad(event: WorldEvent.Load) {
         worldLoadFunctions
             .forEach { it.invoke() }
+    }
+
+    @SubscribeEvent
+    fun onClientTick(event: ClientTickEvent) {
+        clientTickFunctions
+            .forEach {it.invoke()}
     }
 
     @SubscribeEvent

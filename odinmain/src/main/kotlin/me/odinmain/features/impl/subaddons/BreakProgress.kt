@@ -36,9 +36,11 @@ object BreakProgress: Module(
     var progress: Float = 0f
     var progressString = ""
 
+    init {
+        onClientTick { onaClientTick() }
+    }
 
-    @SubscribeEvent
-    fun onClientTick(event: ClientTickEvent) {
+    private fun onaClientTick() {
         if (mc.objectMouseOver == null || mc.objectMouseOver.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) {
             resetVariable()
             return

@@ -26,6 +26,7 @@ import net.minecraft.item.ItemAppleGold
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.event.entity.player.AttackEntityEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import kotlin.math.round
 
 object TargetHud : Module(
     name = "Target Hud",
@@ -36,6 +37,7 @@ object TargetHud : Module(
     private val outline: Boolean by BooleanSetting("Outline", true)
     private val outlinecolor: Color by ColorSetting("Outline Color", Color.BLUE, allowAlpha = true).withDependency { outline }
     private val rounded: Boolean by BooleanSetting("Rounded Edges", default = true, description = "draws the box with rounded edges")
+    private val compact: Boolean by BooleanSetting("Compact", default = false, description = "Compact mode of target hud")
     private val healthBar: Boolean by BooleanSetting("Health bar", description = "displays a health bar next to the target")
     private val style: Boolean by DualSetting("Style", left = "scale", right = "Object", default = false).withDependency { healthBar }
     private val expand: Double by NumberSetting("Expand", 0.0, -0.3, 2.0, 0.1, description = "Expand the health bar").withDependency { healthBar && style}
@@ -43,36 +45,55 @@ object TargetHud : Module(
     //private val allBar: Boolean by BooleanSetting("Everyone", description = "Shows the health bar on everyone, regardless of whether or not theyre your target").withDependency { healthBar }
 
     private val hud: HudElement by HudSetting("Display", 10f, 10f, 2f, false) {
-        //if (followPlayer) return@HudSetting 0f to 0f
         val targetEntity = target?.entity
         if (it) {
-            val round: Float = if (rounded) 9f else 0f
-            if (outline) roundedRectangle(-2f, -2f, 100 + 4f, 42f, outlinecolor, outlinecolor, outlinecolor, 0f , round, round, round, round, 0.5f)
-            roundedRectangle(0f, 0f, 100f, 38f, color, color, color, 0f , round, round, round, round, 0.5f)
+            if (outline) roundedRectangle(-2f, -2f, 100 + 4f, 42f, outlinecolor)
+            roundedRectangle(0f, 0f, 100f, 38f, color)
         } else if (target != null && targetEntity?.isInvisible == false) {
             if (targetEntity is EntityPlayer && target?.isPlayer == false) return@HudSetting 0f to 0f
-            val start = if (targetEntity is EntityPlayer) 30f else 5f
-            val width = max(getMCTextWidth(target?.entity?.displayName?.unformattedText ?: "???"), getMCTextWidth(healthString(targetEntity)), getMCTextWidth(statusString(targetEntity))) + start + 5f
-            val round: Float = if (rounded) 9f else 0f
 
-            if (outline) roundedRectangle(-2f, -2f, width + 4f, 42f, outlinecolor, outlinecolor, outlinecolor, 0f , round, round, round, round, 0.5f)
+            //global values
+            val start = when {
+                targetEntity is EntityPlayer && compact -> 22f
+                targetEntity is EntityPlayer -> 30f
+                else -> 0f
+            }
+
+            val height = if (compact) 22f else 37f
+            val width = max(getMCTextWidth(nameString(targetEntity)), getMCTextWidth(healthString(targetEntity)), getMCTextWidth(statusString(targetEntity))) + start + 5f
+            val roundness = if (rounded) 9f else 0f
+
+            //outline render
+            roundedRectangle(-2f, -2f, width + 4f, height + 4f, outlinecolor, roundness)
+
+            //background render
+            roundedRectangle(0f, 0f, width, height, color, roundness)
+
+            //healthbar values
+            val barX = if (compact) start else 0f
+            val barW = if (compact) width - start else width
 
             val hp = targetEntity.healthPercent()
-            val healthWidth = width * min(hp, 1f)
-            val abHealthWidth = width * if (hp > 1) ((hp - 1)%(1)) else 0.0
-            val ugh = if (rounded) 10f else 5f
-            val ugh2 = if (rounded) 28f else 33f
-            if (hp < 1) roundedRectangle(0f, ugh2, width, ugh, Color.DARK_GRAY, Color.DARK_GRAY, Color.DARK_GRAY, 0f , 0f, 0f, round, round, 0.5f)
-            roundedRectangle(0f, ugh2, healthWidth, ugh, targetEntity.healthColor(), targetEntity.healthColor(), targetEntity.healthColor(), 0f , 0f, 0f, round, round, 0.5f)
-            if (hp > 1) roundedRectangle((width - abHealthWidth), ugh2, abHealthWidth, ugh, Color.BLUE, Color.BLUE, Color.BLUE, 0f , 0f, 0f, round, round, 0.5f)
+            val healthWidth = barW * min(hp, 1f)
+            val abHealthWidth = barW * if (hp > 1) ((hp - 1)%(1)) else 0.0
+            val barY = height - 5
 
-            val color2: Color = if (rounded) Color(color.r, color.g, color.b, 1f) else color
-            roundedRectangle(0f, 0f, width, 33, color2, color2, color2, 0f , round, round, 0, 0, 0.5f)
+            //healthbar render
+            if (hp < 1) roundedRectangle(barX, barY, barW, 5, Color.DARK_GRAY, roundness) //background
+            roundedRectangle(barX, barY, healthWidth, 5, targetEntity.healthColor(), roundness) //health
+            if (hp > 1) roundedRectangle((barX+barW - abHealthWidth), barY, abHealthWidth, 5f, Color.BLUE, roundness) //absorption
 
-            if (targetEntity is EntityPlayer) drawEntityFace(targetEntity, 8, 10, 1.2f)
-            mcText(target?.entity?.displayName?.unformattedText ?: "???", start, 5f, 1, Color.BLUE, center = false)
-            mcText(healthString(targetEntity), start, 15f, 1, Color.WHITE, center = false)
-            mcText(statusString(targetEntity), start, 25f, 1, Color.WHITE, center = false)
+            //text
+            var sa = 5f
+            if (targetEntity is EntityPlayer) {
+                drawEntityFace(targetEntity, if (compact) 6 else 8, if (compact) 6 else 9, if (compact) 1f else 1.2f)
+                sa = 0f
+            }
+            mcText(nameString(targetEntity), start + sa, 5f, 1, Color.BLUE, center = false)
+            if (!compact) {
+                mcText(healthString(targetEntity), start + sa, 15f, 1, Color.WHITE, center = false)
+                mcText(statusString(targetEntity), start + sa, 25f, 1, Color.WHITE, center = false)
+            }
         }
         100f to 38f
     }
@@ -140,18 +161,24 @@ object TargetHud : Module(
         //if (followPlayer && target?.entity != null) drawTargetHudInWorld(target?.entity ?: return, outline, outlinecolor, color)
     }
 
-    private fun healthString(entity: Entity): String {
-        val health = entity.health()
-        val maxHealth = entity.maxHealth()
-        val colorHealth = "${entity.healthColorCode()}${health.round(1)}"
-
-        val winStatus = when {
-            health > mc.thePlayer.health -> "§l§cL"
-            health == mc.thePlayer.health -> "§3T"
+    private fun winStatus(entity: Entity): String {
+        return when {
+            entity.health() > mc.thePlayer.health -> "§l§cL"
+            entity.health() == mc.thePlayer.health -> "§3T"
             else -> "§l§aW"
         }
+    }
 
-        return "$colorHealth§r/§4${maxHealth.round(1)} §c❤ $winStatus"
+    private fun nameString(entity: Entity): String {
+        if (!compact) return entity.displayName.unformattedText
+        val colorHealth = "${entity.healthColorCode()}${entity.health().round(0)}"
+
+        return "${entity.displayName.unformattedText} $colorHealth ${winStatus(entity)}"
+    }
+
+    private fun healthString(entity: Entity): String {
+        val colorHealth = "${entity.healthColorCode()}${entity.health().round(1)}"
+        return "$colorHealth§r/§4${entity.maxHealth().round(1)} §c❤ ${winStatus(entity)}"
     }
 
     private fun statusString(entity: Entity): String {

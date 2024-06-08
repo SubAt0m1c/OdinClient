@@ -9,6 +9,7 @@ import me.odinmain.utils.clock.Executor.Companion.register
 import me.odinmain.utils.render.Color
 import me.odinmain.utils.skyblock.LocationUtils.onHypixel
 import net.minecraft.block.Block
+import net.minecraft.block.BlockAir
 import net.minecraft.block.material.Material
 import net.minecraft.client.multiplayer.PlayerControllerMP
 import net.minecraft.enchantment.Enchantment
@@ -18,8 +19,10 @@ import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.potion.Potion
+import net.minecraft.util.BlockPos
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ChatStyle
+import net.minecraft.util.Vec3
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.relauncher.ReflectionHelper
@@ -31,6 +34,15 @@ import kotlin.math.pow
 
 
 object SubUtils {
+
+    fun overVoid(vec: Vec3): Boolean {
+        for (i in vec.yCoord.toInt() downTo -1 + 1) {
+            if (mc.theWorld.getBlockState(BlockPos(vec.xCoord, i.toDouble(), vec.zCoord)).block !is BlockAir) {
+                return false
+            }
+        }
+        return true
+    }
 
     fun curBlockDamageMP(): Field {
         val curBlockDamageMP = ReflectionHelper.findField(PlayerControllerMP::class.java, "field_78770_f", "curBlockDamageMP")
