@@ -55,7 +55,7 @@ object AntiCheat: Module(
     private var lastAlert = 0L
 
     fun alert(e: EntityPlayer, cheatType: CheatType) {
-        if (e.isOnTeam()) return
+        //if (e.isOnTeam()) return
         val time = System.currentTimeMillis()
         if (interval > 0.0) {
             var hashmap = flags[e.uniqueID]

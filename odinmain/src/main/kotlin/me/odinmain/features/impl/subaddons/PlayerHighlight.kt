@@ -47,7 +47,7 @@ object PlayerHighlight : Module(
     private val advanced: Boolean by DropdownSetting("Show Settings", false)
     private val teamColor: Color by ColorSetting("Team Color", Color.CYAN, true).withDependency { advanced }
     private val oppColor: Color by ColorSetting("Opponent Color", Color.RED, true).withDependency { advanced }
-    val color: Color by ColorSetting("Backup Color", Color.ORANGE, true).withDependency { advanced }
+    private val color: Color by ColorSetting("Backup Color", Color.ORANGE, true).withDependency { advanced }
 
     private val renderThrough: Boolean get() = if (isLegitVersion) false else xray
 

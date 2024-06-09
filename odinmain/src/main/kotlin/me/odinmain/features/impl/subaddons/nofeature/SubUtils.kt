@@ -1,5 +1,6 @@
 package me.odinmain.features.impl.subaddons.nofeature
 
+import com.ibm.icu.math.BigDecimal
 import me.odinmain.OdinMain.mc
 import me.odinmain.features.impl.subaddons.OtherSettings.antiBot
 import me.odinmain.utils.ServerUtils.getPing
@@ -7,6 +8,7 @@ import me.odinmain.utils.cleanSB
 import me.odinmain.utils.clock.Executor
 import me.odinmain.utils.clock.Executor.Companion.register
 import me.odinmain.utils.render.Color
+import me.odinmain.utils.round
 import me.odinmain.utils.skyblock.LocationUtils.onHypixel
 import net.minecraft.block.Block
 import net.minecraft.block.BlockAir
@@ -34,6 +36,11 @@ import kotlin.math.pow
 
 
 object SubUtils {
+
+    fun Number.removeTrailing(): Number {
+        val bd = java.math.BigDecimal(this.toString()).stripTrailingZeros()
+        return if (bd.scale() <= 0) bd.toBigInteger() else bd.toDouble()
+    }
 
     fun overVoid(vec: Vec3): Boolean {
         for (i in vec.yCoord.toInt() downTo -1 + 1) {
@@ -69,7 +76,7 @@ object SubUtils {
         ) / getBlockHardness / 100.0f)
     }
 
-    fun getToolDigEfficiency(itemStack: ItemStack?, block: Block?, ignoreSlow: Boolean, ignoreGround: Boolean): Float {
+    private fun getToolDigEfficiency(itemStack: ItemStack?, block: Block?, ignoreSlow: Boolean, ignoreGround: Boolean): Float {
         var n = if ((itemStack == null)) 1.0f else itemStack.item.getStrVsBlock(itemStack, block)
         if (n > 1.0f) {
             val getEnchantmentLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, itemStack)
@@ -148,10 +155,13 @@ object SubUtils {
     /**
      * Gets the remaining health percent of the specified entity
      *
-     * @return health remaining percent as a float.
+     * @param invert When true, returns the missing health rather than remaining. Defaults to false.
+     *
+     * @return health percent as a float.
      */
-    fun Entity.healthPercent(): Float {
-        return this.health() / this.maxHealth()
+    fun Entity.healthPercent(invert: Boolean = false): Float {
+        val hp = this.health() / this.maxHealth()
+        return if (invert) (-(hp-1)) else hp
     }
 
     /**
@@ -184,6 +194,11 @@ object SubUtils {
             hp < 1 -> "§a"
             else -> "§2"
         }
+    }
+
+    fun Entity.colorHealth(noTrailing: Boolean = false): String {
+        val health = if (noTrailing) this.health().round(1).removeTrailing() else this.health().round(1)
+        return "${this.healthColorCode()}$health"
     }
 
     private fun getHealth(entity: Entity, max: Boolean = false): Float{

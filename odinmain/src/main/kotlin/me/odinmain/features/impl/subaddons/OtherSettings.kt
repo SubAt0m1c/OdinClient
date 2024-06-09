@@ -32,11 +32,11 @@ object OtherSettings : Module(
     description = "Settings for other modules"
 ) {
     private val legitSettings by BooleanSetting("Legit Settings", false, description = "Allows some cheater features on legit").withDependency { isLegitVersion }
-    val terminals: Boolean by BooleanSetting("Block Wrong Terms", false, description = "Blocks wrong clicks in terminals.").withDependency { legitSettings }
+    private val terminals: Boolean by BooleanSetting("Block Wrong Terms", false, description = "Blocks wrong clicks in terminals.").withDependency { legitSettings }
     private val autogfs: Boolean by BooleanSetting("AutoGFS", false, description = "Automatically gets 16 enderpearls when you run out.").withDependency { legitSettings }
     private val inKuudra: Boolean by BooleanSetting("In Kuudra", true, description = "Only get pearls in Kuudra.").withDependency { legitSettings && autogfs}
     private val inDungeon: Boolean by BooleanSetting("In Dungeon", true, description = "Only get pearls in dungeons.").withDependency { legitSettings && autogfs }
-    val gyro: Boolean by BooleanSetting("Block align", false, description = "Blocks Align")
+    private val gyro: Boolean by BooleanSetting("Block align", false, description = "Blocks Align")
     val tempwaypointsAnywhere: Boolean by BooleanSetting("Temp Waypoints anywhere", true, description = "Allows temp waypoints anywhere, specifically outside skyblock")
     private val noEther: Boolean by BooleanSetting("No Ether", default = false, description = "Stops you from etherwarping to certain waypoints/blocks. REQUIRES etherwarp helper")
     private var color: Color by ColorSetting("Block Color", default = Color.GREEN, description = "The color of waypoints that block etherwarps.", allowAlpha = true).withDependency { colorPallet == 0  && noEther}

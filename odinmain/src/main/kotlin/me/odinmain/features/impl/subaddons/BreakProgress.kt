@@ -5,7 +5,9 @@ import me.odinmain.features.Module
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.curBlockDamageMP
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.getBlockHardness
 import me.odinmain.features.impl.subaddons.nofeature.SubUtils.rnd
+import me.odinmain.features.settings.impl.ColorSetting
 import me.odinmain.features.settings.impl.DualSetting
+import me.odinmain.utils.render.Color
 import me.odinmain.utils.render.Renderer
 import me.odinmain.utils.round
 import net.minecraft.util.BlockPos
@@ -20,7 +22,13 @@ object BreakProgress: Module(
     category = Category.SUBADDONS,
     description = "Renders the progress for blocks being broken"
 ) {
-    val mode: Boolean by DualSetting("Mode", left = "Percent", right = "Seconds", default = false, description = "Which style to display the percent as")
+    private val mode: Boolean by DualSetting("Mode", left = "Percent", right = "Seconds", default = false, description = "Which style to display the percent as")
+    private val color: Color by ColorSetting("Color", default = Color.WHITE, description = "Color for the text")
+
+    private var block: BlockPos? = null
+    private var progress: Float = 0f
+    private var progressString = ""
+
 
     private fun setProgress() {
         if (!mode) {
@@ -31,10 +39,6 @@ object BreakProgress: Module(
             progressString = if (timeLeft == 0.toDouble()) "0" else "${timeString}s"
         }
     }
-
-    var block: BlockPos? = null
-    var progress: Float = 0f
-    var progressString = ""
 
     init {
         onClientTick { onaClientTick() }
@@ -53,8 +57,7 @@ object BreakProgress: Module(
             }
             block = mc.objectMouseOver.blockPos
             setProgress()
-        } catch (_: IllegalAccessException) {
-        }
+        } catch (_: IllegalAccessException) { }
 
     }
 
@@ -62,7 +65,7 @@ object BreakProgress: Module(
     fun onRenderWorldLast(event: RenderWorldLastEvent) {
         if (progress != 0.0f && block != null && mc.thePlayer != null && mc.theWorld != null) {
             val pos = Vec3(block!!.x + 0.5, block!!.y + 0.5, block!!.z + 0.5)
-            Renderer.drawStringInWorld(progressString, pos, depth = false)
+            Renderer.drawStringInWorld(progressString, pos, depth = false, color = color)
         }
     }
 

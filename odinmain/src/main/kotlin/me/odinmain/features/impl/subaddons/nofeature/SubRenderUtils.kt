@@ -28,13 +28,13 @@ import kotlin.math.min
 
 object SubRenderUtils {
 
-    fun drawEntityFace(entity: Entity, x: Int, y: Int, scale: Float = 1f) {
+    fun drawEntityFace(entity: Entity, x: Int, y: Int, w: Int, h: Int) {
         val playerInfo: NetworkPlayerInfo = mc.netHandler.getPlayerInfo(entity.uniqueID)?: return
 
         mc.textureManager.bindTexture(playerInfo.locationSkin)
         GL11.glColor4f(1F, 1F, 1F, 1F);
 
-        Gui.drawScaledCustomSizeModalRect(x-5, y-5, 8f, 8f, 8 ,8, (20 * scale).toInt(), (20 * scale).toInt(),64f, 64f)
+        Gui.drawScaledCustomSizeModalRect(x, y, 8f, 8f, 8 ,8, w - 2, h - 2,64f, 64f)
     }
 
     /**fun drawTargetHudInWorld(targetEntity: Entity, outline: Boolean, outlinecolor: Color, color: Color, depth: Boolean = true) {
@@ -167,7 +167,7 @@ object SubRenderUtils {
         if ((box.x > 0f && box.y > 0f && box.x <= mc.displayWidth && box.y <= mc.displayHeight) || (box.w > 0 && box.h > 0 && box.w <= mc.displayWidth && box.h <= mc.displayHeight)) {
             roundedRectangle(box.x - hc(5), box.y - hc(8), hc(13), hc() + hc(7), Color.BLACK, 0f)
             roundedRectangle(box.x - hc(5) + hc(74), box.y + hc(74) - hc(8), hc(13)-hc(37), hc()-hc(37)+hc(7), targetEntity.healthColor(), 0f)
-            roundedRectangle(box.x - hc(5) + hc(74), box.y + hc(74) - hc(8), hc(13)-hc(37), (hc()-hc(37)+hc(7)) * remainingHealth(targetEntity), Color.DARK_GRAY, 0f)
+            roundedRectangle(box.x - hc(5) + hc(74), box.y + hc(74) - hc(8), hc(13)-hc(37), (hc()-hc(37)+hc(7)) * targetEntity.healthPercent(true), Color.DARK_GRAY, 0f)
             //roundedRectangle(box.x - hc(5) + hc(74), box.y + hc(74) - hc(8), hc(13)-hc(37), (hc()-hc(37)+hc(7) * absorbtionHealth(targetEntity)), Color.BLUE, 0f)
         }
 
@@ -206,24 +206,4 @@ object SubRenderUtils {
             GlStateManager.popMatrix()
         }
     }
-
-    private fun remainingHealth(entity: Entity) : Float { return -(entity.healthPercent()-1) }
-
-    private fun absorbtionHealth(entity: Entity) : Float {
-        val hp = entity.healthPercent().toDouble()
-        val op = if (hp > 1) ((hp - 1)%(1)) else 0.0
-        return op.toFloat()
-    }
-
-    private fun color(entity: Entity) : Color {
-        val hp = remainingHealth(entity)
-        return when {
-            hp <= 0 -> Color.DARK_GREEN
-            hp <= 0.25 -> Color.GREEN
-            hp <= 0.75 -> Color.ORANGE
-            hp > 0.75 -> Color.RED
-            else -> Color.DARK_GREEN
-        }
-    }
-
 }
