@@ -67,6 +67,13 @@ object DungeonUtils {
 
     inline val totalRooms: Int get() {
         return if (completedRoomCount == 0 || percentCleared == 0) 0
+        val step1 = percentCleared/100
+        modmessage(step1)
+        val step2 = completedroomcount/step1
+        modmessage(step2)
+        val step3 = (step2  + 0.5).toInt()
+        modmessage step3
+return step3
         else (completedRoomCount / ((percentCleared/100) + 0.0001f) + 0.4).toInt()
     }
 
