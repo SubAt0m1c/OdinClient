@@ -53,8 +53,8 @@ object MapInfo : Module(
 
     private fun colorizeCrypts(count: Int): String {
         return when {
-            count < 3 -> "§c${count}"
-            count <5 -> "§e${count}"
+            count == 0 -> "&c0"
+            count < 5 -> "§e${count}"
             else -> "§a${count}"
         }
     }
@@ -70,8 +70,7 @@ object MapInfo : Module(
     private fun colorizeSecrets(count: Int, max: Int): String {
         return when {
             count == 0 -> "§70"
-            count <= max * 0.5 -> "§c${count}"
-            count <= max * 0.99 -> "§e${count}"
+            count <= max * 0.99 -> "§9${count}"
             else -> "§a${count}"
         }
     }
